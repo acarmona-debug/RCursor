@@ -20,6 +20,69 @@ const upload = multer({ dest: 'uploads/' });
 app.use(cors());
 app.use(express.json());
 
+const stringifyCellValue = (value: any): string => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' || typeof value === 'boolean') return value.toString();
+  if (value instanceof Date) return value.toISOString();
+
+  if (typeof value === 'object') {
+    if ('result' in value && value.result !== null && value.result !== undefined) {
+      return stringifyCellValue(value.result);
+    }
+    if ('text' in value && value.text !== null && value.text !== undefined) {
+      return value.text.toString().trim();
+    }
+    if ('richText' in value && Array.isArray(value.richText)) {
+      return value.richText.map((part: any) => part?.text || '').join('').trim();
+    }
+    if ('hyperlink' in value) {
+      return (value.text || value.hyperlink || '').toString().trim();
+    }
+    if ('formula' in value && value.formula) {
+      return value.formula.toString().trim();
+    }
+  }
+
+  return value.toString().trim();
+};
+
+const parseCellNumber = (value: any): number => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+
+  if (typeof value === 'object' && value !== null && 'result' in value) {
+    return parseCellNumber(value.result);
+  }
+
+  const raw = stringifyCellValue(value).replace(/\s/g, '');
+  const negativeMatch = raw.match(/^\((.*)\)$/);
+  const normalized = (negativeMatch ? `-${negativeMatch[1]}` : raw).replace(/[$,]/g, '');
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const isWinnerMark = (value: any): boolean => {
+  const normalized = stringifyCellValue(value).trim().toUpperCase();
+  return normalized === '1' || normalized === 'X' || normalized === '✓' || normalized === 'TRUE' || normalized === 'SI' || normalized === 'SÍ';
+};
+
+const sanitizeFilenamePart = (text: string): string => {
+  const cleaned = text
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return cleaned.length > 0 ? cleaned : 'Unknown';
+};
+
+const firstNonEmptyMatrixCell = (sheet: ExcelJS.Worksheet, candidates: string[]): string => {
+  for (const ref of candidates) {
+    const value = stringifyCellValue(sheet.getCell(ref).value);
+    if (value) return value;
+  }
+  return '';
+};
+
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
@@ -366,12 +429,17 @@ app.post('/api/phase2', upload.fields([
     sheet.getCell(14, 26).value = "CHOOSE P3";
     sheet.getRow(14).font = { bold: true };
 
-    // Add Summary Row at the bottom (Row 81)
-    const summaryRow = 81;
+    // Add Summary Row below the last detected matrix item row
+    const mappedRows = Object.values(matrixClaveMap) as number[];
+    const maxItemRow = mappedRows.length ? Math.max(...mappedRows) : 80;
+    const summaryRow = maxItemRow + 1;
+    const summaryRangeStart = 15;
+    const summaryRangeEnd = Math.max(summaryRangeStart, maxItemRow);
+
     sheet.getCell(summaryRow, 2).value = "TOTAL ITEMS SELECTED";
-    sheet.getCell(summaryRow, 24).value = { formula: `COUNTIF(X15:X80,1)+COUNTIF(X15:X80,"X")+COUNTIF(X15:X80,"x")+COUNTIF(X15:X80,"✓")` }; 
-    sheet.getCell(summaryRow, 25).value = { formula: `COUNTIF(Y15:Y80,1)+COUNTIF(Y15:Y80,"X")+COUNTIF(Y15:Y80,"x")+COUNTIF(Y15:Y80,"✓")` };
-    sheet.getCell(summaryRow, 26).value = { formula: `COUNTIF(Z15:Z80,1)+COUNTIF(Z15:Z80,"X")+COUNTIF(Z15:Z80,"x")+COUNTIF(Z15:Z80,"✓")` };
+    sheet.getCell(summaryRow, 24).value = { formula: `COUNTIF(X${summaryRangeStart}:X${summaryRangeEnd},1)+COUNTIF(X${summaryRangeStart}:X${summaryRangeEnd},"X")+COUNTIF(X${summaryRangeStart}:X${summaryRangeEnd},"x")+COUNTIF(X${summaryRangeStart}:X${summaryRangeEnd},"✓")` }; 
+    sheet.getCell(summaryRow, 25).value = { formula: `COUNTIF(Y${summaryRangeStart}:Y${summaryRangeEnd},1)+COUNTIF(Y${summaryRangeStart}:Y${summaryRangeEnd},"X")+COUNTIF(Y${summaryRangeStart}:Y${summaryRangeEnd},"x")+COUNTIF(Y${summaryRangeStart}:Y${summaryRangeEnd},"✓")` };
+    sheet.getCell(summaryRow, 26).value = { formula: `COUNTIF(Z${summaryRangeStart}:Z${summaryRangeEnd},1)+COUNTIF(Z${summaryRangeStart}:Z${summaryRangeEnd},"X")+COUNTIF(Z${summaryRangeStart}:Z${summaryRangeEnd},"x")+COUNTIF(Z${summaryRangeStart}:Z${summaryRangeEnd},"✓")` };
     
     // Style summary row
     sheet.getRow(summaryRow).font = { bold: true };
@@ -387,6 +455,179 @@ app.post('/api/phase2', upload.fields([
     });
   } catch (error: any) {
     console.error('Phase 2 Error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- Phase 3: Generate Purchase Orders from selected suppliers ---
+app.post('/api/phase3', upload.fields([
+  { name: 'matrix', maxCount: 1 },
+  { name: 'poTemplate', maxCount: 1 }
+]), async (req: any, res) => {
+  try {
+    if (!req.files || !req.files['matrix'] || !req.files['poTemplate']) {
+      return res.status(400).json({ success: false, error: 'Missing required files: Final Matrix and PO Template are required.' });
+    }
+
+    const matrixFile = req.files['matrix'][0];
+    const poTemplateFile = req.files['poTemplate'][0];
+
+    const matrixWb = new ExcelJS.Workbook();
+    await matrixWb.xlsx.readFile(matrixFile.path);
+    const matrixSheet = matrixWb.getWorksheet(1);
+    if (!matrixSheet) throw new Error('Final matrix worksheet not found.');
+
+    const matrixMeta = {
+      obra: firstNonEmptyMatrixCell(matrixSheet, ['C5']),
+      numReq: firstNonEmptyMatrixCell(matrixSheet, ['G5', 'F5']),
+      fecha: firstNonEmptyMatrixCell(matrixSheet, ['G6', 'F6']),
+      direccion: firstNonEmptyMatrixCell(matrixSheet, ['C7']),
+      ubicacion: firstNonEmptyMatrixCell(matrixSheet, ['G7', 'F7']),
+      solicita: firstNonEmptyMatrixCell(matrixSheet, ['C9']),
+    };
+
+    const supplierSlots = [
+      { slot: 'P1', checkCol: 24, unitPriceCol: 15, lineTotalCol: 16, supplierMetaCol: 3 },
+      { slot: 'P2', checkCol: 25, unitPriceCol: 18, lineTotalCol: 19, supplierMetaCol: 9 },
+      { slot: 'P3', checkCol: 26, unitPriceCol: 21, lineTotalCol: 22, supplierMetaCol: 15 },
+    ] as const;
+
+    type SelectedItem = {
+      code: string;
+      desc: string;
+      unit: string;
+      qty: number;
+      unitPrice: number;
+      lineTotal: number;
+    };
+
+    const selectedBySupplier: Record<string, SelectedItem[]> = {
+      P1: [],
+      P2: [],
+      P3: [],
+    };
+
+    const scanLastRow = Math.max(80, matrixSheet.rowCount);
+    for (let rowNumber = 15; rowNumber <= scanLastRow; rowNumber++) {
+      const code = stringifyCellValue(matrixSheet.getCell(rowNumber, 2).value);
+      if (!code) continue;
+
+      const upperCode = code.toUpperCase();
+      if (upperCode === 'CLAVE' || upperCode === 'PARTIDA') continue;
+      if (upperCode.includes('TOTAL ITEMS SELECTED')) break;
+
+      const desc = stringifyCellValue(matrixSheet.getCell(rowNumber, 3).value);
+      const unit = stringifyCellValue(matrixSheet.getCell(rowNumber, 4).value);
+      const qty = parseCellNumber(matrixSheet.getCell(rowNumber, 5).value);
+
+      for (const slotInfo of supplierSlots) {
+        const winnerValue = matrixSheet.getCell(rowNumber, slotInfo.checkCol).value;
+        if (!isWinnerMark(winnerValue)) continue;
+
+        const unitPrice = parseCellNumber(matrixSheet.getCell(rowNumber, slotInfo.unitPriceCol).value);
+        const lineTotalCell = parseCellNumber(matrixSheet.getCell(rowNumber, slotInfo.lineTotalCol).value);
+        const lineTotal = lineTotalCell || (qty * unitPrice);
+
+        selectedBySupplier[slotInfo.slot].push({
+          code,
+          desc,
+          unit,
+          qty,
+          unitPrice,
+          lineTotal,
+        });
+      }
+    }
+
+    const generatedFiles: any[] = [];
+    const baseItemStartRow = 26;
+    const baseItemEndRow = 34;
+    const baseTotalsRow = 35;
+    const baseCapacity = baseItemEndRow - baseItemStartRow + 1;
+    const poColumnsToClear = [2, 5, 13, 14, 15, 16];
+
+    for (const slotInfo of supplierSlots) {
+      const items = selectedBySupplier[slotInfo.slot];
+      if (!items.length) continue;
+
+      const poWb = new ExcelJS.Workbook();
+      await poWb.xlsx.readFile(poTemplateFile.path);
+      const poSheet = poWb.getWorksheet(1);
+      if (!poSheet) throw new Error('PO template worksheet not found.');
+
+      const supplierName = stringifyCellValue(matrixSheet.getCell(91, slotInfo.supplierMetaCol).value) || `${slotInfo.slot} Supplier`;
+      poSheet.getCell('D9').value = supplierName;
+      poSheet.getCell('M9').value = matrixMeta.obra;
+      poSheet.getCell('M10').value = matrixMeta.direccion;
+      poSheet.getCell('M11').value = matrixMeta.ubicacion;
+      poSheet.getCell('M15').value = matrixMeta.numReq;
+      poSheet.getCell('N5').value = matrixMeta.fecha;
+      poSheet.getCell('N6').value = matrixMeta.solicita;
+
+      const extraRows = Math.max(0, items.length - baseCapacity);
+      if (extraRows > 0) {
+        poSheet.insertRows(baseTotalsRow, Array.from({ length: extraRows }, () => []), 'i');
+      }
+
+      const totalsRow = baseTotalsRow + extraRows;
+      for (let row = baseItemStartRow; row < totalsRow; row++) {
+        for (const col of poColumnsToClear) {
+          poSheet.getCell(row, col).value = null;
+        }
+      }
+
+      items.forEach((item, idx) => {
+        const row = baseItemStartRow + idx;
+        poSheet.getCell(row, 2).value = item.code;
+        poSheet.getCell(row, 5).value = item.desc;
+        poSheet.getCell(row, 13).value = item.unit;
+        poSheet.getCell(row, 14).value = item.qty;
+        poSheet.getCell(row, 15).value = item.unitPrice;
+        poSheet.getCell(row, 16).value = { formula: `N${row}*O${row}` };
+      });
+
+      const lastItemRow = baseItemStartRow + items.length - 1;
+      if (items.length > 0) {
+        poSheet.getCell(totalsRow, 14).value = { formula: `SUM(N${baseItemStartRow}:N${lastItemRow})` };
+        poSheet.getCell(totalsRow, 16).value = { formula: `SUM(P${baseItemStartRow}:P${lastItemRow})` };
+      } else {
+        poSheet.getCell(totalsRow, 14).value = 0;
+        poSheet.getCell(totalsRow, 16).value = 0;
+      }
+
+      const safeReq = sanitizeFilenamePart(matrixMeta.numReq || 'REQ');
+      const safeSupplier = sanitizeFilenamePart(supplierName);
+      const finalFilename = `PO_${safeReq}_${slotInfo.slot}_${safeSupplier}.xlsx`;
+      const storedFilename = `${Date.now()}_${Math.random().toString(16).slice(2, 8)}_${finalFilename}`;
+      const outputPath = path.join(uploadDir, storedFilename);
+
+      await poWb.xlsx.writeFile(outputPath);
+      generatedFiles.push({
+        slot: slotInfo.slot,
+        supplierName,
+        selectedItems: items.length,
+        filename: finalFilename,
+        downloadUrl: `/api/download?path=${encodeURIComponent(outputPath)}`,
+      });
+    }
+
+    if (generatedFiles.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "No items were selected. Mark selected suppliers with '1' in columns X, Y, or Z (Elegir proveedor).",
+      });
+    }
+
+    const singleFile = generatedFiles.length === 1 ? generatedFiles[0] : null;
+    res.json({
+      success: true,
+      generatedCount: generatedFiles.length,
+      files: generatedFiles,
+      filename: singleFile?.filename,
+      downloadUrl: singleFile?.downloadUrl,
+    });
+  } catch (error: any) {
+    console.error('Phase 3 Error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

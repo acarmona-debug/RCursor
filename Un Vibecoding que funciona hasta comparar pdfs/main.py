@@ -2,6 +2,7 @@ import os
 import re
 import difflib
 import openpyxl
+from copy import copy
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 import pdfplumber
 import customtkinter as ctk
@@ -273,12 +274,13 @@ class ProcurementApp:
             ws.cell(row=14, column=25).value = "CHOOSE P2"
             ws.cell(row=14, column=26).value = "CHOOSE P3"
 
-            # Add Summary Row (Row 81)
-            summary_row = 81
+            # Add Summary Row below the last item row to avoid overwriting data
+            max_item_row = max(clave_a_fila.values()) if clave_a_fila else 80
+            summary_row = max_item_row + 1
             ws.cell(row=summary_row, column=2).value = "TOTAL ITEMS SELECTED"
-            ws.cell(row=summary_row, column=24).value = f'=COUNTIF(X15:X80,1)+COUNTIF(X15:X80,"X")+COUNTIF(X15:X80,"x")+COUNTIF(X15:X80,"✓")'
-            ws.cell(row=summary_row, column=25).value = f'=COUNTIF(Y15:Y80,1)+COUNTIF(Y15:Y80,"X")+COUNTIF(Y15:Y80,"x")+COUNTIF(Y15:Y80,"✓")'
-            ws.cell(row=summary_row, column=26).value = f'=COUNTIF(Z15:Z80,1)+COUNTIF(Z15:Z80,"X")+COUNTIF(Z15:Z80,"x")+COUNTIF(Z15:Z80,"✓")'
+            ws.cell(row=summary_row, column=24).value = f'=COUNTIF(X15:X{max_item_row},1)+COUNTIF(X15:X{max_item_row},"X")+COUNTIF(X15:X{max_item_row},"x")+COUNTIF(X15:X{max_item_row},"✓")'
+            ws.cell(row=summary_row, column=25).value = f'=COUNTIF(Y15:Y{max_item_row},1)+COUNTIF(Y15:Y{max_item_row},"X")+COUNTIF(Y15:Y{max_item_row},"x")+COUNTIF(Y15:Y{max_item_row},"✓")'
+            ws.cell(row=summary_row, column=26).value = f'=COUNTIF(Z15:Z{max_item_row},1)+COUNTIF(Z15:Z{max_item_row},"X")+COUNTIF(Z15:Z{max_item_row},"x")+COUNTIF(Z15:Z{max_item_row},"✓")'
 
             wb.save(matrix_path)
             return True, f"Matrix updated with {len(pdf_paths)} PDF(s)."
@@ -305,17 +307,33 @@ class ProcurementApp:
             
             def get_val(ws, cell):
                 c = ws[cell]
-                if c.value is None: return ""
+                if c.value is None:
+                    return ""
                 return str(c.value).strip()
+
+            def get_first_val(ws, *cells):
+                for cell in cells:
+                    value = get_val(ws, cell)
+                    if value:
+                        return value
+                return ""
+
+            def to_float(value):
+                if value is None:
+                    return 0.0
+                try:
+                    return float(str(value).replace(",", "").replace("$", "").strip())
+                except Exception:
+                    return 0.0
 
             # Extract Metadata from Matrix
             enc = {
-                "obra": get_val(sheet, "C5"),
-                "num_req": get_val(sheet, "F5"),
+                "obra": get_first_val(sheet, "C5"),
+                "num_req": get_first_val(sheet, "G5", "F5"),
                 "contrato": get_val(sheet, "C6"),
-                "fecha": get_val(sheet, "F6"),
+                "fecha": get_first_val(sheet, "G6", "F6"),
                 "direccion": get_val(sheet, "C7"),
-                "ubicacion": get_val(sheet, "F7"),
+                "ubicacion": get_first_val(sheet, "G7", "F7"),
                 "solicita": get_val(sheet, "C9"),
             }
 
@@ -323,25 +341,40 @@ class ProcurementApp:
             winners = {0: [], 1: [], 2: []} # Supplier index -> list of items
             total_winners = 0
             
-            for row_idx in range(self.FILA_INI, 80):
+            for row_idx in range(self.FILA_INI, sheet.max_row + 1):
                 item_code = sheet.cell(row=row_idx, column=2).value
-                if not item_code or "-" not in str(item_code): continue
+                if not item_code:
+                    continue
+
+                item_code_str = str(item_code).strip()
+                upper_code = item_code_str.upper()
+                if upper_code in ["CLAVE", "PARTIDA"]:
+                    continue
+                if "TOTAL ITEMS SELECTED" in upper_code:
+                    break
                 
                 for s_idx in range(3):
                     check_col = 24 + s_idx
-                    val = str(sheet.cell(row=row_idx, column=check_col).value).strip()
-                    if val in ['✓', 'x', 'X', '1']:
+                    val = str(sheet.cell(row=row_idx, column=check_col).value).strip().upper()
+                    if val in ['✓', 'X', '1', 'TRUE', 'SI', 'SÍ']:
+                        qty_value = to_float(sheet.cell(row=row_idx, column=5).value)
+                        price_col = 15 + (s_idx * 3)  # O, R, U
+                        price_value = to_float(sheet.cell(row=row_idx, column=price_col).value)
+                        total_col = 16 + (s_idx * 3)  # P, S, V
+                        line_total = to_float(sheet.cell(row=row_idx, column=total_col).value) or (qty_value * price_value)
+
                         winners[s_idx].append({
-                            'code': item_code,
+                            'code': item_code_str,
                             'desc': sheet.cell(row=row_idx, column=3).value,
                             'unit': sheet.cell(row=row_idx, column=4).value,
-                            'qty': sheet.cell(row=row_idx, column=5).value,
-                            'price': sheet.cell(row=row_idx, column=15 + (s_idx*3)).value # O, R, U
+                            'qty': qty_value,
+                            'price': price_value,
+                            'line_total': line_total
                         })
                         total_winners += 1
 
             if total_winners == 0:
-                return False, "No winners selected. Please mark winners with a '1', 'X', or '✓' in columns X, Y, or Z (rows 15-80)."
+                return False, "No winners selected. Please mark winners with a '1', 'X', or '✓' in columns X, Y, or Z."
 
             generated_count = 0
             for s_idx, items in winners.items():
@@ -364,17 +397,34 @@ class ProcurementApp:
                 po_ws['N5'] = enc["fecha"]
                 po_ws['N6'] = enc["solicita"]
                 
-                # Clear items area (Rows 26-34)
-                for r_clear in range(26, 35):
+                # Expand items area if selected rows are greater than template capacity
+                base_item_start = 26
+                base_item_end = 34
+                base_totals_row = 35
+                base_capacity = base_item_end - base_item_start + 1
+                extra_rows = max(0, len(items) - base_capacity)
+
+                if extra_rows > 0:
+                    po_ws.insert_rows(base_totals_row, amount=extra_rows)
+                    # Copy style from last template item row to new rows
+                    for r_new in range(base_totals_row, base_totals_row + extra_rows):
+                        for c_new in range(1, po_ws.max_column + 1):
+                            src_cell = po_ws.cell(row=base_item_end, column=c_new)
+                            dst_cell = po_ws.cell(row=r_new, column=c_new)
+                            if src_cell.has_style:
+                                dst_cell._style = copy(src_cell._style)
+
+                totals_row = base_totals_row + extra_rows
+
+                # Clear items area
+                for r_clear in range(base_item_start, totals_row):
                     for c_clear in [2, 5, 14, 13, 15, 16]:
                         po_ws.cell(row=r_clear, column=c_clear).value = None
-
-                total_qty = 0
-                total_amount = 0
+                
+                start_row = base_item_start
 
                 for i, item in enumerate(items):
-                    r = 26 + i # Items start at row 26
-                    if r > 34: break
+                    r = start_row + i
 
                     po_ws.cell(row=r, column=2).value = item['code']
                     po_ws.cell(row=r, column=5).value = item['desc']
@@ -382,15 +432,13 @@ class ProcurementApp:
                     po_ws.cell(row=r, column=13).value = item['unit']
                     po_ws.cell(row=r, column=15).value = item['price']
                     po_ws.cell(row=r, column=16).value = f"=N{r}*O{r}"
-                    
-                    total_qty += (item['qty'] or 0)
-                    total_amount += ((item['qty'] or 0) * (item['price'] or 0))
                 
-                # Fill Totals at Row 35
-                po_ws.cell(row=35, column=14).value = total_qty
-                po_ws.cell(row=35, column=16).value = total_amount
+                # Fill dynamic totals row
+                last_item_row = start_row + len(items) - 1
+                po_ws.cell(row=totals_row, column=14).value = f"=SUM(N{start_row}:N{last_item_row})"
+                po_ws.cell(row=totals_row, column=16).value = f"=SUM(P{start_row}:P{last_item_row})"
                 
-                out_name = f"PO_{enc['num_req']}_{sanitized_name}.xlsx"
+                out_name = f"PO_{enc['num_req']}_P{s_idx+1}_{sanitized_name}.xlsx"
                 po_wb.save(os.path.join(output_dir, out_name))
                 generated_count += 1
 

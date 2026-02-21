@@ -21,7 +21,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type Phase = 1 | 2 | 'python';
+type Phase = 1 | 2 | 3 | 'python';
 
 export default function App() {
   const [activePhase, setActivePhase] = useState<Phase>(1);
@@ -107,6 +107,12 @@ export default function App() {
             active={activePhase === 2} 
             onClick={() => handlePhaseChange(2)} 
           />
+          <NavItem 
+            icon={<CheckCircle2 size={18} />} 
+            label="Phase 3: POs" 
+            active={activePhase === 3} 
+            onClick={() => handlePhaseChange(3)} 
+          />
           <div className="mt-8 pt-8 border-t border-[#141414]/10">
             <NavItem 
               icon={<Terminal size={18} />} 
@@ -185,6 +191,7 @@ export default function App() {
             >
               {activePhase === 1 && <Phase1 onUpload={(fd) => handleFileUpload(1, fd)} loading={loading} results={results} />}
               {activePhase === 2 && <Phase2 onUpload={(fd) => handleFileUpload(2, fd)} loading={loading} results={results} />}
+              {activePhase === 3 && <Phase3 onUpload={(fd) => handleFileUpload(3, fd)} loading={loading} results={results} />}
               {activePhase === 'python' && <PythonSection />}
             </motion.div>
           </AnimatePresence>
@@ -298,13 +305,58 @@ function Phase2({ onUpload, loading, results }: any) {
   );
 }
 
+function Phase3({ onUpload, loading, results }: any) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onUpload(formData);
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h2 className="text-4xl font-serif italic">Generate Purchase Orders</h2>
+        <p className="text-[#141414]/60 max-w-2xl">
+          Upload the final matrix from Phase 2 and your "Formato de Orden de Compra" template.
+          Items marked with <span className="font-mono">1</span> in "Elegir proveedor" (columns X/Y/Z)
+          will be grouped into one PO per supplier (P1, P2, P3), with extra rows added automatically when needed.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FileUploadBox name="matrix" label="Final Matrix (XLSX)" icon={<FileSpreadsheet />} />
+        <FileUploadBox name="poTemplate" label="PO Template (XLSX)" icon={<FileSpreadsheet />} />
+
+        <div className="md:col-span-2 pt-4">
+          <button
+            disabled={loading}
+            className="w-full bg-[#141414] text-[#E4E3E0] py-4 rounded-none font-bold uppercase tracking-widest hover:bg-[#141414]/90 disabled:opacity-50 transition-all"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-3">
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                <span>Generating Supplier POs...</span>
+              </div>
+            ) : (
+              'Generate POs'
+            )}
+          </button>
+        </div>
+      </form>
+
+      {results && <ResultBox results={results} />}
+    </div>
+  );
+}
+
 function PythonSection() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
         <h2 className="text-4xl font-serif italic">Local Desktop Application</h2>
         <p className="text-[#141414]/60 max-w-2xl">
-          Download the source code and instructions to build your own standalone Windows executable (.exe) using Python and CustomTkinter.
+          Download the source code and build a standalone Windows executable (.exe) using Python and CustomTkinter.
+          This is the easiest rollout if your team needs an offline desktop tool.
         </p>
       </div>
 
@@ -335,6 +387,12 @@ function PythonSection() {
           <p className="text-sm opacity-70">Run this command in your terminal to generate the standalone .exe file.</p>
           <div className="p-3 bg-[#141414] text-[#E4E3E0] font-mono text-xs overflow-x-auto">
             pyinstaller --noconsole --onefile --name "ProcureFlow" main.py
+          </div>
+          <div className="space-y-1 text-xs opacity-70">
+            <p>1) Install Python 3.x</p>
+            <p>2) Run <span className="font-mono">pip install -r requirements.txt</span></p>
+            <p>3) Run the PyInstaller command above</p>
+            <p>4) Share <span className="font-mono">dist/ProcureFlow.exe</span> with your team</p>
           </div>
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest opacity-50">
             <AlertCircle size={12} />
@@ -369,11 +427,14 @@ function FileUploadBox({ name, label, icon, className }: { name: string, label: 
 }
 
 function ResultBox({ results }: { results: any }) {
+  const files = Array.isArray(results?.files) ? results.files : [];
+  const hasMultipleFiles = files.length > 1;
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-6 bg-emerald-50 border border-emerald-500/30 flex items-center justify-between"
+      className="p-6 bg-emerald-50 border border-emerald-500/30 flex items-start justify-between gap-6"
     >
       <div className="flex items-center gap-4">
         <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center text-white">
@@ -382,6 +443,7 @@ function ResultBox({ results }: { results: any }) {
         <div>
           <h4 className="font-bold text-emerald-900">Process Complete</h4>
           <p className="text-sm text-emerald-700 font-mono">
+            {results.generatedCount !== undefined ? `${results.generatedCount} PO file(s) generated. ` : ''}
             {results.addedCount !== undefined ? `${results.addedCount} items processed. ` : ''}
             {results.filename || 'Files generated successfully'}
           </p>
@@ -392,14 +454,29 @@ function ResultBox({ results }: { results: any }) {
           )}
         </div>
       </div>
-      {results.downloadUrl && (
-        <a 
-          href={results.downloadUrl} 
-          className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 font-bold uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all"
-        >
-          <Download size={16} />
-          Download Result
-        </a>
+      {hasMultipleFiles ? (
+        <div className="flex flex-col gap-2 min-w-56">
+          {files.map((file: any) => (
+            <a
+              key={`${file.slot}-${file.filename}`}
+              href={file.downloadUrl}
+              className="flex items-center justify-between gap-2 bg-emerald-600 text-white px-4 py-3 font-bold uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all"
+            >
+              <span>{file.slot}: {file.supplierName || 'Supplier'}</span>
+              <Download size={14} />
+            </a>
+          ))}
+        </div>
+      ) : (
+        results.downloadUrl && (
+          <a 
+            href={results.downloadUrl} 
+            className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 font-bold uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all"
+          >
+            <Download size={16} />
+            Download Result
+          </a>
+        )
       )}
     </motion.div>
   );

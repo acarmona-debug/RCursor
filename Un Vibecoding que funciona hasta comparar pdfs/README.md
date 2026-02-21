@@ -1,20 +1,48 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# ProcureFlow AI
 
-# Run and deploy your AI Studio app
+ProcureFlow AI automates procurement in 3 phases:
 
-This contains everything you need to run your app locally.
+1. **Phase 1: Matrix**
+   - Upload Requisition + BOM + Matrix template.
+   - Generates a Draft Matrix.
+2. **Phase 2: Extract**
+   - Upload Draft Matrix + BOM + up to 3 supplier PDFs.
+   - Populates supplier pricing columns (P1, P2, P3).
+3. **Phase 3: POs**
+   - Upload Final Matrix + `Formato de Orden de Compra` template.
+   - Reads supplier selection marks (`1`) in **Elegir proveedor** (X/Y/Z).
+   - Generates **one PO per supplier**, including all selected items.
+   - If selected items exceed template rows, rows are added automatically.
 
-View your app in AI Studio: https://ai.studio/apps/77641e4a-9e66-46cb-a2e1-ab49e8c6b195
+## Run locally (web app)
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+Prerequisite: Node.js 20+ recommended.
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+2. Start the app:
+   ```bash
+   npm run dev
+   ```
+3. Open:
+   - `http://localhost:3000`
+
+## Desktop `.exe` option (for non-technical staff)
+
+If your team prefers a standalone Windows app, use the Python desktop tool:
+
+1. Install Python 3.x
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Build executable:
+   ```bash
+   pyinstaller --noconsole --onefile --name "ProcureFlow" main.py
+   ```
+4. Share:
+   - `dist/ProcureFlow.exe`
+
+This path is useful for offline usage and simpler distribution inside your company.
