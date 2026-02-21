@@ -1,0 +1,5 @@
+{
+  "name": "ProcureFlow AI",
+  "description": "Automated procurement workflow: Merge Requisitions and Extract Supplier PDFs. PO generation is handled via the local Python tool.",
+  "requestFramePermissions": []
+}
