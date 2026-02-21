@@ -541,7 +541,7 @@ app.post('/api/phase3', upload.fields([
 
     const generatedFiles: any[] = [];
     const frameEndRow = 34;
-    const baseItemStartRow = 26;
+    const baseItemStartRow = 19;
     const baseItemEndRow = 34;
     const baseTotalsRow = 35;
     const baseCapacity = baseItemEndRow - baseItemStartRow + 1;

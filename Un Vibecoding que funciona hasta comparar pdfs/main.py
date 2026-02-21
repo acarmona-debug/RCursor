@@ -399,7 +399,7 @@ class ProcurementApp:
                 
                 # Expand items area if selected rows are greater than template capacity
                 frame_end = 34
-                base_item_start = 26
+                base_item_start = 19
                 base_item_end = 34
                 base_totals_row = 35
                 base_capacity = base_item_end - base_item_start + 1
