@@ -398,6 +398,7 @@ class ProcurementApp:
                 po_ws['N6'] = enc["solicita"]
                 
                 # Expand items area if selected rows are greater than template capacity
+                frame_end = 34
                 base_item_start = 26
                 base_item_end = 34
                 base_totals_row = 35
@@ -405,11 +406,13 @@ class ProcurementApp:
                 extra_rows = max(0, len(items) - base_capacity)
 
                 if extra_rows > 0:
-                    po_ws.insert_rows(base_totals_row, amount=extra_rows)
-                    # Copy style from last template item row to new rows
-                    for r_new in range(base_totals_row, base_totals_row + extra_rows):
+                    # Insert inside the PO frame so the frame grows from B19:B34.
+                    po_ws.insert_rows(frame_end, amount=extra_rows)
+                    # Copy regular item-row style into the inserted rows (use row 33 as source).
+                    style_source_row = base_item_end - 1
+                    for r_new in range(frame_end, frame_end + extra_rows):
                         for c_new in range(1, po_ws.max_column + 1):
-                            src_cell = po_ws.cell(row=base_item_end, column=c_new)
+                            src_cell = po_ws.cell(row=style_source_row, column=c_new)
                             dst_cell = po_ws.cell(row=r_new, column=c_new)
                             if src_cell.has_style:
                                 dst_cell._style = copy(src_cell._style)

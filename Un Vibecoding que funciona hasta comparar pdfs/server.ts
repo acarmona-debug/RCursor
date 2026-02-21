@@ -540,6 +540,7 @@ app.post('/api/phase3', upload.fields([
     }
 
     const generatedFiles: any[] = [];
+    const frameEndRow = 34;
     const baseItemStartRow = 26;
     const baseItemEndRow = 34;
     const baseTotalsRow = 35;
@@ -566,7 +567,9 @@ app.post('/api/phase3', upload.fields([
 
       const extraRows = Math.max(0, items.length - baseCapacity);
       if (extraRows > 0) {
-        poSheet.insertRows(baseTotalsRow, Array.from({ length: extraRows }, () => []), 'i');
+        // Insert rows before the original frame bottom (row 34),
+        // so the purchase-order frame grows downward from B19:B34.
+        poSheet.insertRows(frameEndRow, Array.from({ length: extraRows }, () => []), 'i');
       }
 
       const totalsRow = baseTotalsRow + extraRows;
