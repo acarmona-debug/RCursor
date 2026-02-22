@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main palette - Modern dark theme -->
+    <color name="primary">#6C63FF</color>
+    <color name="primary_dark">#5A52D5</color>
+    <color name="primary_light">#8B85FF</color>
+    <color name="accent">#FF6B6B</color>
+
+    <!-- Background & Surface -->
+    <color name="background">#0F0F23</color>
+    <color name="surface">#1A1A2E</color>
+    <color name="surface_elevated">#252547</color>
+
+    <!-- Text -->
+    <color name="text_primary">#EAEAFF</color>
+    <color name="text_secondary">#8888AA</color>
+    <color name="text_hint">#555577</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Semantic -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FFB74D</color>
+    <color name="error">#FF5252</color>
+
+    <!-- Priority -->
+    <color name="priority_low">#66BB6A</color>
+    <color name="priority_medium">#42A5F5</color>
+    <color name="priority_high">#FFA726</color>
+    <color name="priority_urgent">#EF5350</color>
+
+    <!-- Chip selectors -->
+    <color name="chip_bg_selected">#6C63FF</color>
+    <color name="chip_bg_unselected">#1A1A2E</color>
+    <color name="chip_text_selected">#FFFFFF</color>
+    <color name="chip_text_unselected">#8888AA</color>
+
+    <color name="status_bar">#0A0A1A</color>
+</resources>
