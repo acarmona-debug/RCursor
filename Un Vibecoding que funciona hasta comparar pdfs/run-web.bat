@@ -20,7 +20,7 @@ if errorlevel 1 (
 )
 
 set PORT_READY=
-for /f "tokens=1" %%A in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING"') do set PORT_READY=1
+for /f "tokens=1" %%A in ('netstat -ano ^| findstr ":3000" ^| findstr /I /C:"LISTENING" /C:"ESCUCHANDO"') do set PORT_READY=1
 if defined PORT_READY (
   echo [ProcureFlow] Server already running on port 3000.
   start "" "http://localhost:3000"
@@ -28,7 +28,7 @@ if defined PORT_READY (
 )
 
 if not exist node_modules (
-  echo [ProcureFlow] Installing npm dependencies (first run)...
+  echo [ProcureFlow] Installing npm dependencies first run...
   call npm install
   if errorlevel 1 (
     echo [ProcureFlow] npm install failed.
@@ -43,7 +43,7 @@ set /a ATTEMPTS=0
 :WAIT_PORT
 set /a ATTEMPTS+=1
 set PORT_READY=
-for /f "tokens=1" %%A in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING"') do set PORT_READY=1
+for /f "tokens=1" %%A in ('netstat -ano ^| findstr ":3000" ^| findstr /I /C:"LISTENING" /C:"ESCUCHANDO"') do set PORT_READY=1
 if defined PORT_READY goto OPEN_BROWSER
 if !ATTEMPTS! GEQ 45 goto OPEN_BROWSER
 timeout /t 1 /nobreak >nul
