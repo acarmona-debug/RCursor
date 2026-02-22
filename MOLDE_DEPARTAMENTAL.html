@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOLDE — [NOMBRE_DEPARTAMENTO]</title>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    INSTRUCCIONES PARA CLAUDE (IA)                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                            ║
+║  CONTEXTO:                                                                 ║
+║  Este es el molde departamental estándar de UnaUnCuarto (UUC).             ║
+║  Fue diseñado por Alan como parte de su proyecto de modernización          ║
+║  documental. Combina lo mejor de ISO 9001, BPM, BPMN, Lean, Six Sigma    ║
+║  y SIPOC sin la burocracia tradicional.                                    ║
+║                                                                            ║
+║  CÓMO USAR ESTE MOLDE:                                                     ║
+║  1. Alan te dará este archivo HTML + inputs (entrevistas, transcripciones, ║
+║     documentos del departamento).                                          ║
+║  2. Tu trabajo es LLENAR el objeto `data` con la información real.         ║
+║  3. NUNCA modifiques la estructura de tabs, CSS, ni funciones render.      ║
+║  4. SOLO modifica el contenido dentro del objeto `data`.                   ║
+║  5. Respeta las categorías de tags existentes (ver tagTypes).              ║
+║  6. Mantén la notación de archivos: PRS-[DEPTO]-[###]-Nombre-DDMMAA-v#    ║
+║                                                                            ║
+║  REGLAS DE LLENADO POR PESTAÑA:                                            ║
+║                                                                            ║
+║  TAB 1 — VISTA GENERAL                                                     ║
+║  → Extraer de la entrevista: descripción del área, funciones principales,  ║
+║    personal, herramientas que usan, alcance.                               ║
+║  → Cada nodo = 1 tema/hallazgo. Clasificar con tags:                       ║
+║    fortaleza / cuello / oportunidad / riesgo / proceso / contexto          ║
+║  → Agrupar nodos en secciones temáticas (máx 5-7 secciones).              ║
+║                                                                            ║
+║  TAB 2 — FLUJO DE NEGOCIO                                                  ║
+║  → El proceso MACRO del departamento de inicio a fin.                      ║
+║  → Cada step = 1 etapa. Puede tener branches (decisiones sí/no).          ║
+║  → Incluir responsable en cada paso cuando se conozca.                     ║
+║  → Si hay subprocesos, anidarlos como branches del paso principal.         ║
+║                                                                            ║
+║  TAB 3 — CORRELACIONES                                                     ║
+║  → Relaciones causa-efecto INTERNAS del departamento.                      ║
+║  → from/to son descripciones cortas del origen y destino.                  ║
+║  → impact = consecuencia concreta, no genérica.                            ║
+║  → type: directa (A causa B), inversa (A evita B), bidireccional.          ║
+║                                                                            ║
+║  TAB 4 — CUELLOS DE BOTELLA                                                ║
+║  → Problemas REALES identificados en la entrevista.                        ║
+║  → severity: critico (detiene operación), alto (retrasa), medio (molesta). ║
+║  → No inventar cuellos. Si no hay info suficiente, dejar vacío.            ║
+║                                                                            ║
+║  TAB 5 — OPORTUNIDADES                                                     ║
+║  → Mejoras identificables a partir de los cuellos y el contexto.           ║
+║  → priority: game-changer / alta / media / baja.                           ║
+║  → benefit = resultado esperado concreto y medible si es posible.          ║
+║                                                                            ║
+║  TAB 6 — PROCEDIMIENTOS                                                    ║
+║  → Se llena cuando exista el documento formal (PRS-XXX-###).               ║
+║  → Cada procedimiento lleva: código, nombre, SIPOC, pasos con             ║
+║    responsable + acción + documento asociado.                              ║
+║  → Si no hay procedimientos documentados aún, dejar el placeholder.        ║
+║  → SIPOC = { suppliers, inputs, process, outputs, customers }              ║
+║                                                                            ║
+║  TAB 7 — ESTRUCTURA Y RESPONSABILIDADES                                    ║
+║  → Organigrama funcional (quién reporta a quién).                          ║
+║  → Roles con funciones principales (no descripciones de puesto largas).    ║
+║  → Límites de autorización (quién aprueba qué, hasta cuánto).             ║
+║                                                                            ║
+║  TAB 8 — DEPENDENCIAS INTERDEPARTAMENTALES                                 ║
+║  → Qué RECIBE este departamento de otros (inputs externos).                ║
+║  → Qué ENTREGA este departamento a otros (outputs externos).               ║
+║  → Canal de comunicación (correo, WhatsApp, físico, sistema).              ║
+║  → Este tab alimenta al HTML MAESTRO de empresa.                           ║
+║                                                                            ║
+║  TAB 9 — INDICADORES / KPIs                                                ║
+║  → Métricas que el departamento DEBERÍA medir.                             ║
+║  → Si ya miden algo, documentarlo. Si no, proponer con base en contexto.   ║
+║  → Incluir: nombre, fórmula/descripción, frecuencia, responsable.         ║
+║  → NO inventar metas numéricas — eso lo define Alan con el área.           ║
+║                                                                            ║
+║  TAB 10 — POLÍTICAS Y LINEAMIENTOS                                         ║
+║  → Reglas de operación del área.                                           ║
+║  → Criterios de decisión (ej: precio > cantidad > tiempo).                 ║
+║  → Excepciones y quién las autoriza.                                       ║
+║  → Son reglas autoimpuestas, NO métricas auditables.                       ║
+║                                                                            ║
+║  NOTAS GENERALES:                                                          ║
+║  - El metadato "tipo_proceso" va en data.meta (operativo/soporte/          ║
+║    estratégico/estratégico-operativo).                                      ║
+║  - Versión y fecha se actualizan en data.meta cada vez que se modifique.   ║
+║  - Si una pestaña no tiene info suficiente, dejar el array vacío []        ║
+║    y el placeholder se mostrará automáticamente.                           ║
+║  - NUNCA mezclar datos de un departamento con otro.                        ║
+║  - Las correlaciones de Tab 3 son INTERNAS. Las de Tab 8 son EXTERNAS.     ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card: #1a1a25;
+    --bg-card-hover: #22222f;
+    --border: #2a2a3a;
+    --border-light: #3a3a4a;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888a0;
+    --text-muted: #555570;
+    --accent-cyan: #00d4ff;
+    --accent-green: #00ff88;
+    --accent-orange: #ff8800;
+    --accent-red: #ff4444;
+    --accent-purple: #aa77ff;
+    --accent-yellow: #ffcc00;
+    --accent-blue: #4488ff;
+    --accent-pink: #ff66aa;
+    --font-mono: 'Space Mono', monospace;
+    --font-sans: 'Inter', sans-serif;
+    --radius: 8px;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  .header {
+    padding: 32px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(170,119,255,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .header-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .header-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    line-height: 1.5;
+  }
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-tipo { background: rgba(0,212,255,0.12); color: var(--accent-cyan); border: 1px solid rgba(0,212,255,0.25); }
+  .badge-version { background: rgba(0,255,136,0.1); color: var(--accent-green); border: 1px solid rgba(0,255,136,0.2); }
+  .badge-fecha { background: rgba(170,119,255,0.1); color: var(--accent-purple); border: 1px solid rgba(170,119,255,0.2); }
+  .badge-notacion { background: rgba(255,136,0,0.1); color: var(--accent-orange); border: 1px solid rgba(255,136,0,0.2); }
+
+  /* ── TABS ────────────────────────────────────────────────── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: var(--transition);
+    user-select: none;
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+  }
+  .tab.empty::after {
+    content: '○';
+    margin-left: 6px;
+    font-size: 8px;
+    vertical-align: middle;
+    opacity: 0.5;
+  }
+  .tab.filled::after {
+    content: '●';
+    margin-left: 6px;
+    font-size: 8px;
+    vertical-align: middle;
+    color: var(--accent-green);
+  }
+
+  /* ── CONTENT AREA ───────────────────────────────────────── */
+  .content {
+    padding: 30px 40px 60px;
+    max-width: 1100px;
+  }
+
+  /* ── PLACEHOLDER (empty state) ──────────────────────────── */
+  .placeholder {
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius);
+    padding: 60px 40px;
+    text-align: center;
+    margin: 20px 0;
+  }
+  .placeholder-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+  .placeholder-title {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .placeholder-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .placeholder-instruction {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-cyan);
+    opacity: 0.5;
+    margin-top: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* ── SECTIONS (collapsible) ─────────────────────────────── */
+  .section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  .section:hover { border-color: var(--border-light); }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: var(--bg-secondary);
+    user-select: none;
+  }
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .section-toggle {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: var(--transition);
+  }
+  .section-body {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .section.open .section-body {
+    max-height: 3000px;
+    padding: 16px 20px;
+  }
+  .section.open .section-toggle {
+    transform: rotate(45deg);
+  }
+
+  /* ── ITEMS (nodes) ──────────────────────────────────────── */
+  .item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .item:last-child { border-bottom: none; }
+  .item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .item-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+  .item-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .item-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ── TAGS ────────────────────────────────────────────────── */
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-right: 6px;
+    margin-top: 6px;
+  }
+  .tag-fortaleza { background: rgba(0,255,136,0.12); color: var(--accent-green); }
+  .tag-cuello { background: rgba(255,68,68,0.12); color: var(--accent-red); }
+  .tag-oportunidad { background: rgba(0,212,255,0.12); color: var(--accent-cyan); }
+  .tag-riesgo { background: rgba(255,136,0,0.12); color: var(--accent-orange); }
+  .tag-proceso { background: rgba(170,119,255,0.1); color: var(--accent-purple); }
+  .tag-contexto { background: rgba(255,204,0,0.1); color: var(--accent-yellow); }
+
+  /* ── FLOW (tab 2) ───────────────────────────────────────── */
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-left: 2px solid var(--border);
+    margin-left: 20px;
+    padding-left: 24px;
+    position: relative;
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 20px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    border: 2px solid var(--accent-cyan);
+  }
+  .flow-step.decision::before {
+    border-radius: 2px;
+    transform: rotate(45deg);
+    border-color: var(--accent-orange);
+  }
+  .flow-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .flow-content { flex: 1; }
+  .flow-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .flow-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .flow-branch {
+    margin-left: 40px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-left: 2px dashed var(--accent-orange);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .flow-branch-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-orange);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* ── CORRELATIONS (tab 3) ───────────────────────────────── */
+  .correlation {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    transition: var(--transition);
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .correlation:hover { border-color: var(--border-light); background: var(--bg-card); }
+  .corr-node {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .corr-node strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+  .corr-arrow {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--accent-cyan);
+  }
+  .corr-impact {
+    font-size: 11px;
+    color: var(--accent-orange);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── SEVERITY / PRIORITY BADGES ─────────────────────────── */
+  .severity, .priority {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .severity-critico { background: rgba(255,68,68,0.15); color: var(--accent-red); }
+  .severity-alto { background: rgba(255,136,0,0.15); color: var(--accent-orange); }
+  .severity-medio { background: rgba(255,204,0,0.12); color: var(--accent-yellow); }
+  .priority-game-changer { background: rgba(0,255,136,0.15); color: var(--accent-green); }
+  .priority-alta { background: rgba(0,212,255,0.15); color: var(--accent-cyan); }
+  .priority-media { background: rgba(170,119,255,0.12); color: var(--accent-purple); }
+  .priority-baja { background: rgba(136,136,160,0.15); color: var(--text-secondary); }
+
+  /* ── BOTTLENECK / OPPORTUNITY CARDS ─────────────────────── */
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    transition: var(--transition);
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--border-light); }
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .card-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  /* ── PROCEDURE TABLE (tab 6) ────────────────────────────── */
+  .proc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 16px 0;
+  }
+  .proc-table th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+    text-align: left;
+  }
+  .proc-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  .proc-table tr:hover td { background: var(--bg-card); }
+
+  /* ── SIPOC BLOCK ────────────────────────────────────────── */
+  .sipoc {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .sipoc-col {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    background: var(--bg-secondary);
+  }
+  .sipoc-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-cyan);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .sipoc-items {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  /* ── ORG / STRUCTURE (tab 7) ────────────────────────────── */
+  .org-role {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .org-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    flex-shrink: 0;
+  }
+  .org-info { flex: 1; }
+  .org-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .org-title {
+    font-size: 11px;
+    color: var(--accent-purple);
+    margin-top: 2px;
+  }
+  .org-functions {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+  .org-auth {
+    font-size: 11px;
+    color: var(--accent-orange);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ── DEPENDENCY ARROWS (tab 8) ──────────────────────────── */
+  .dep-group-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dep-group-title.inputs { color: var(--accent-cyan); }
+  .dep-group-title.outputs { color: var(--accent-green); }
+  .dep-item {
+    display: grid;
+    grid-template-columns: 140px 1fr 100px;
+    gap: 12px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    font-size: 12px;
+    align-items: center;
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .dep-dept {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .dep-what { color: var(--text-secondary); }
+  .dep-channel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── KPI (tab 9) ────────────────────────────────────────── */
+  .kpi-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    background: var(--bg-card);
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .kpi-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .kpi-formula {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-cyan);
+    margin-bottom: 6px;
+  }
+  .kpi-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .kpi-meta span {
+    margin-right: 16px;
+  }
+
+  /* ── POLICY (tab 10) ────────────────────────────────────── */
+  .policy {
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    animation: fadeUp 0.3s ease forwards;
+    opacity: 0;
+  }
+  .policy-rule {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .policy-detail {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .policy-exception {
+    font-size: 11px;
+    color: var(--accent-orange);
+    margin-top: 6px;
+  }
+
+  /* ── ANIMATIONS ─────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .header { padding: 20px 16px 16px; }
+    .tabs { padding: 0 16px; }
+    .content { padding: 20px 16px 40px; }
+    .sipoc { grid-template-columns: 1fr; }
+    .dep-item { grid-template-columns: 1fr; gap: 4px; }
+    .correlation { grid-template-columns: 1fr; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<script>
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        OBJETO DATA — LLENAR AQUÍ                          ║
+║                                                                            ║
+║  Claude: Solo modifica el contenido de este objeto.                        ║
+║  NO toques CSS, funciones render, ni estructura de tabs.                   ║
+║  Cada array vacío [] mostrará el placeholder correspondiente.              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+*/
+
+const data = {
+
+  // ── METADATOS DEL DEPARTAMENTO ──────────────────────────────────────────
+  meta: {
+    departamento: "[NOMBRE DEL DEPARTAMENTO]",
+    responsable: "[NOMBRE DEL RESPONSABLE]",
+    tipo_proceso: "[operativo | soporte | estratégico | estratégico-operativo]",
+    alcance: "[Descripción breve del alcance del departamento]",
+    notacion: "PRS-[DEPTO]-001",  // Ej: PRS-COM-001
+    version: "0.0",
+    fecha: "DD/MM/AA",
+  },
+
+  // ── TAB 1: VISTA GENERAL ────────────────────────────────────────────────
+  // Cada sección = agrupación temática. Cada item = hallazgo/observación.
+  // tags válidos: fortaleza, cuello, oportunidad, riesgo, proceso, contexto
+  overview: [
+    /*
+    {
+      title: "Nombre de la sección temática",
+      items: [
+        {
+          text: "Hallazgo principal en negritas",
+          sub: "Detalle o contexto adicional",
+          tags: ["proceso", "fortaleza"]
+        },
+      ]
+    },
+    */
+  ],
+
+  // ── TAB 2: FLUJO DE NEGOCIO ─────────────────────────────────────────────
+  // Proceso macro del departamento. type: "step" | "decision"
+  flow: [
+    /*
+    {
+      num: "01",
+      title: "Nombre del paso",
+      desc: "Descripción de lo que sucede",
+      responsible: "Nombre/Puesto",
+      type: "step",          // "step" o "decision"
+      color_bg: "#0a1a2a",   // fondo del número
+      color_text: "var(--accent-cyan)",
+      branches: [            // Solo si type === "decision"
+        { label: "SÍ", desc: "Lo que pasa si sí" },
+        { label: "NO", desc: "Lo que pasa si no" },
+      ]
+    },
+    */
+  ],
+
+  // ── TAB 3: CORRELACIONES (INTERNAS) ─────────────────────────────────────
+  // Relaciones causa-efecto DENTRO del departamento.
+  // type: "directa" | "inversa" | "bidireccional"
+  correlations: [
+    /*
+    {
+      from: "Origen del efecto",
+      from_detail: "Detalle del origen",
+      to: "Destino del efecto",
+      to_detail: "Detalle del destino",
+      impact: "Consecuencia concreta",
+      type: "directa"
+    },
+    */
+  ],
+
+  // ── TAB 4: CUELLOS DE BOTELLA ───────────────────────────────────────────
+  // Solo problemas REALES de la entrevista. severity: critico | alto | medio
+  bottlenecks: [
+    /*
+    {
+      title: "Nombre del cuello",
+      severity: "critico",
+      desc: "Descripción del problema",
+      impact: "Frecuencia o contexto adicional"
+    },
+    */
+  ],
+
+  // ── TAB 5: OPORTUNIDADES ────────────────────────────────────────────────
+  // priority: game-changer | alta | media | baja
+  opportunities: [
+    /*
+    {
+      title: "Nombre de la oportunidad",
+      priority: "alta",
+      desc: "Descripción de la mejora",
+      benefit: "Resultado esperado concreto"
+    },
+    */
+  ],
+
+  // ── TAB 6: PROCEDIMIENTOS ───────────────────────────────────────────────
+  // Se llena cuando exista PRS-XXX-### formal.
+  procedures: [
+    /*
+    {
+      code: "PRS-COM-001",
+      name: "Procedimiento de Compras Estándar",
+      sipoc: {
+        suppliers: ["Residente de obra", "Almacén"],
+        inputs: ["Solicitud de material", "Listado de faltantes"],
+        process: "Cotización → Comparativa → OC → Entrega",
+        outputs: ["Orden de compra", "Material en obra"],
+        customers: ["Almacén", "Residente de obra"]
+      },
+      steps: [
+        { num: 1, responsible: "Puesto", action: "Descripción de la acción", doc: "Formato asociado o null" },
+      ]
+    },
+    */
+  ],
+
+  // ── TAB 7: ESTRUCTURA Y RESPONSABILIDADES ───────────────────────────────
+  structure: [
+    /*
+    {
+      name: "Nombre de la persona",
+      title: "Puesto",
+      initials: "XX",        // Para el avatar
+      reports_to: "Jefe directo o null",
+      functions: "Funciones principales separadas por coma",
+      auth_limit: "Qué puede aprobar y hasta cuánto (o null)"
+    },
+    */
+  ],
+
+  // ── TAB 8: DEPENDENCIAS INTERDEPARTAMENTALES ────────────────────────────
+  // inputs = lo que RECIBE de otros. outputs = lo que ENTREGA a otros.
+  dependencies: {
+    inputs: [
+      /*
+      { dept: "Departamento origen", what: "Qué recibe", channel: "Correo/WhatsApp/Físico/Sistema" },
+      */
+    ],
+    outputs: [
+      /*
+      { dept: "Departamento destino", what: "Qué entrega", channel: "Correo/WhatsApp/Físico/Sistema" },
+      */
+    ]
+  },
+
+  // ── TAB 9: INDICADORES / KPIs ──────────────────────────────────────────
+  // NO inventar metas numéricas. Solo nombre + fórmula + frecuencia.
+  kpis: [
+    /*
+    {
+      name: "Nombre del indicador",
+      formula: "Cómo se mide (descripción o fórmula)",
+      frequency: "Mensual/Semanal/Por proyecto",
+      responsible: "Quién lo mide"
+    },
+    */
+  ],
+
+  // ── TAB 10: POLÍTICAS Y LINEAMIENTOS ────────────────────────────────────
+  // Reglas autoimpuestas, NO métricas auditables.
+  policies: [
+    /*
+    {
+      rule: "Enunciado de la regla",
+      detail: "Contexto o explicación",
+      exception: "Quién autoriza la excepción (o null)"
+    },
+    */
+  ],
+
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ════════════ NO MODIFICAR NADA DEBAJO DE ESTA LÍNEA ════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+
+const tabs = [
+  { id: 'overview',       label: 'Vista General',       icon: '🧠', dataKey: 'overview' },
+  { id: 'flow',           label: 'Flujo',               icon: '🔀', dataKey: 'flow' },
+  { id: 'correlations',   label: 'Correlaciones',       icon: '🔗', dataKey: 'correlations' },
+  { id: 'bottlenecks',    label: 'Cuellos',             icon: '🚨', dataKey: 'bottlenecks' },
+  { id: 'opportunities',  label: 'Oportunidades',       icon: '🚀', dataKey: 'opportunities' },
+  { id: 'procedures',     label: 'Procedimientos',      icon: '📋', dataKey: 'procedures' },
+  { id: 'structure',      label: 'Estructura',          icon: '👥', dataKey: 'structure' },
+  { id: 'dependencies',   label: 'Dependencias',        icon: '🔗', dataKey: 'dependencies' },
+  { id: 'kpis',           label: 'KPIs',                icon: '📊', dataKey: 'kpis' },
+  { id: 'policies',       label: 'Políticas',           icon: '⚙️', dataKey: 'policies' },
+];
+
+const placeholders = {
+  overview:      { icon: '🧠', title: 'Vista General vacía', hint: 'Se llenará con los hallazgos de la entrevista al responsable del departamento. Secciones temáticas con nodos clasificados por tipo.', instruction: 'INPUT: Transcripción de entrevista' },
+  flow:          { icon: '🔀', title: 'Flujo de Negocio vacío', hint: 'Proceso macro del departamento de inicio a fin. Cada paso con responsable, decisiones con ramificaciones.', instruction: 'INPUT: Entrevista + observación de proceso' },
+  correlations:  { icon: '🔗', title: 'Correlaciones vacías', hint: 'Relaciones causa-efecto internas del departamento. Cómo un proceso afecta a otro dentro de la misma área.', instruction: 'INPUT: Análisis cruzado de hallazgos' },
+  bottlenecks:   { icon: '🚨', title: 'Cuellos de Botella vacíos', hint: 'Problemas reales identificados en campo. No se inventan — solo lo que la entrevista y observación revelan.', instruction: 'INPUT: Entrevista + dolor real del área' },
+  opportunities: { icon: '🚀', title: 'Oportunidades vacías', hint: 'Mejoras identificables a partir de los cuellos y el contexto operativo. Priorizadas por impacto.', instruction: 'INPUT: Derivado de cuellos + contexto' },
+  procedures:    { icon: '📋', title: 'Procedimientos vacíos', hint: 'Se llena cuando existan documentos PRS formales. Cada procedimiento con SIPOC + pasos numerados con responsable y formato asociado.', instruction: 'INPUT: Documento PRS-XXX-### formal' },
+  structure:     { icon: '👥', title: 'Estructura vacía', hint: 'Organigrama funcional del departamento. Quién, qué hace, a quién reporta, qué puede autorizar.', instruction: 'INPUT: Entrevista al responsable' },
+  dependencies:  { icon: '🔗', title: 'Dependencias vacías', hint: 'Qué recibe de otros departamentos y qué les entrega. Incluye canal de comunicación. Alimenta al HTML Maestro de empresa.', instruction: 'INPUT: Entrevista + mapeo interdepartamental' },
+  kpis:          { icon: '📊', title: 'Indicadores vacíos', hint: 'Métricas que el departamento debería o ya está midiendo. Sin metas numéricas inventadas — eso lo define el área.', instruction: 'INPUT: Entrevista + contexto operativo' },
+  policies:      { icon: '⚙️', title: 'Políticas vacías', hint: 'Reglas de operación autoimpuestas. Criterios de decisión, excepciones y quién las autoriza.', instruction: 'INPUT: Entrevista + lineamientos existentes' },
+};
+
+function isTabEmpty(tabId) {
+  const key = tabs.find(t => t.id === tabId)?.dataKey;
+  if (!key) return true;
+  const d = data[key];
+  if (Array.isArray(d)) return d.length === 0;
+  if (typeof d === 'object' && d !== null) {
+    return Object.values(d).every(v => Array.isArray(v) ? v.length === 0 : !v);
+  }
+  return !d;
+}
+
+function renderPlaceholder(tabId) {
+  const p = placeholders[tabId];
+  return `
+    <div class="placeholder">
+      <div class="placeholder-icon">${p.icon}</div>
+      <div class="placeholder-title">${p.title}</div>
+      <div class="placeholder-hint">${p.hint}</div>
+      <div class="placeholder-instruction">${p.instruction}</div>
+    </div>`;
+}
+
+function stagger(i) { return `animation-delay: ${i * 0.05}s`; }
+
+function renderTags(tags) {
+  return tags.map(t => `<span class="tag tag-${t}">${t}</span>`).join('');
+}
+
+// ── RENDER FUNCTIONS ──────────────────────────────────────────────────────
+
+function renderOverview() {
+  if (data.overview.length === 0) return renderPlaceholder('overview');
+  return data.overview.map(section => `
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title">${section.title}</div>
+        <div class="section-toggle">+</div>
+      </div>
+      <div class="section-body">
+        ${section.items.map((item, i) => `
+          <div class="item" style="${stagger(i)}">
+            <div class="item-dot" style="background:var(--accent-cyan)"></div>
+            <div class="item-text">
+              <strong>${item.text}</strong>
+              ${item.sub ? `<div class="item-sub">${item.sub}</div>` : ''}
+              ${item.tags ? renderTags(item.tags) : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderFlow() {
+  if (data.flow.length === 0) return renderPlaceholder('flow');
+  return `<div style="padding:8px 0">${data.flow.map((step, i) => `
+    <div class="flow-step ${step.type === 'decision' ? 'decision' : ''}" style="${stagger(i)}">
+      <div class="flow-num" style="background:${step.color_bg || '#0a1a2a'};color:${step.color_text || 'var(--accent-cyan)'}">${step.num}</div>
+      <div class="flow-content">
+        <div class="flow-title">${step.title}</div>
+        <div class="flow-desc">${step.desc}</div>
+        ${step.responsible ? `<div style="margin-top:4px;font-size:11px;color:var(--accent-purple)">→ ${step.responsible}</div>` : ''}
+        ${step.branches ? step.branches.map(b => `
+          <div class="flow-branch">
+            <div class="flow-branch-label">${b.label}</div>
+            ${b.desc}
+          </div>`).join('') : ''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderCorrelations() {
+  if (data.correlations.length === 0) return renderPlaceholder('correlations');
+  const arrows = { directa: '→', inversa: '←', bidireccional: '↔' };
+  return data.correlations.map((c, i) => `
+    <div class="correlation" style="${stagger(i)}">
+      <div class="corr-node">
+        <strong>${c.from}</strong>
+        ${c.from_detail || ''}
+      </div>
+      <div class="corr-arrow">${arrows[c.type] || '→'}</div>
+      <div class="corr-node">
+        <strong>${c.to}</strong>
+        ${c.to_detail || ''}
+      </div>
+    </div>
+    ${c.impact ? `<div class="corr-impact" style="margin:-4px 0 12px 16px;animation:fadeUp 0.3s ease forwards;opacity:0;${stagger(i)}">⚡ ${c.impact}</div>` : ''}`).join('');
+}
+
+function renderBottlenecks() {
+  if (data.bottlenecks.length === 0) return renderPlaceholder('bottlenecks');
+  return data.bottlenecks.map((b, i) => `
+    <div class="card" style="${stagger(i)}">
+      <div class="severity severity-${b.severity}">${b.severity}</div>
+      <div class="card-title">${b.title}</div>
+      <div class="card-desc">${b.desc}</div>
+      ${b.impact ? `<div class="card-meta">${b.impact}</div>` : ''}
+    </div>`).join('');
+}
+
+function renderOpportunities() {
+  if (data.opportunities.length === 0) return renderPlaceholder('opportunities');
+  return data.opportunities.map((o, i) => `
+    <div class="card" style="${stagger(i)}">
+      <div class="priority priority-${o.priority}">${o.priority.replace('-', ' ')}</div>
+      <div class="card-title">${o.title}</div>
+      <div class="card-desc">${o.desc}</div>
+      ${o.benefit ? `<div class="card-meta" style="color:var(--accent-green)">→ ${o.benefit}</div>` : ''}
+    </div>`).join('');
+}
+
+function renderProcedures() {
+  if (data.procedures.length === 0) return renderPlaceholder('procedures');
+  return data.procedures.map(proc => `
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title"><span style="color:var(--accent-cyan)">${proc.code}</span> — ${proc.name}</div>
+        <div class="section-toggle">+</div>
+      </div>
+      <div class="section-body">
+        ${proc.sipoc ? `
+        <div class="sipoc">
+          <div class="sipoc-col"><div class="sipoc-label">Suppliers</div><div class="sipoc-items">${proc.sipoc.suppliers.join('<br>')}</div></div>
+          <div class="sipoc-col"><div class="sipoc-label">Inputs</div><div class="sipoc-items">${proc.sipoc.inputs.join('<br>')}</div></div>
+          <div class="sipoc-col"><div class="sipoc-label">Process</div><div class="sipoc-items">${proc.sipoc.process}</div></div>
+          <div class="sipoc-col"><div class="sipoc-label">Outputs</div><div class="sipoc-items">${proc.sipoc.outputs.join('<br>')}</div></div>
+          <div class="sipoc-col"><div class="sipoc-label">Customers</div><div class="sipoc-items">${proc.sipoc.customers.join('<br>')}</div></div>
+        </div>` : ''}
+        <table class="proc-table">
+          <thead><tr><th>#</th><th>Responsable</th><th>Acción</th><th>Documento</th></tr></thead>
+          <tbody>${proc.steps.map(s => `
+            <tr>
+              <td style="font-family:var(--font-mono);color:var(--accent-cyan)">${s.num}</td>
+              <td style="color:var(--text-primary);font-weight:500">${s.responsible}</td>
+              <td>${s.action}</td>
+              <td style="font-family:var(--font-mono);font-size:10px;color:var(--accent-purple)">${s.doc || '—'}</td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`).join('');
+}
+
+function renderStructure() {
+  if (data.structure.length === 0) return renderPlaceholder('structure');
+  return data.structure.map((r, i) => `
+    <div class="org-role" style="${stagger(i)}">
+      <div class="org-avatar">${r.initials}</div>
+      <div class="org-info">
+        <div class="org-name">${r.name}</div>
+        <div class="org-title">${r.title}</div>
+        ${r.reports_to ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px">Reporta a: ${r.reports_to}</div>` : ''}
+        <div class="org-functions">${r.functions}</div>
+        ${r.auth_limit ? `<div class="org-auth">Autorización: ${r.auth_limit}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function renderDependencies() {
+  const inp = data.dependencies.inputs;
+  const out = data.dependencies.outputs;
+  if (inp.length === 0 && out.length === 0) return renderPlaceholder('dependencies');
+  let html = '';
+  if (inp.length > 0) {
+    html += `<div class="dep-group-title inputs">⬇ Lo que RECIBE de otros departamentos</div>`;
+    html += inp.map((d, i) => `
+      <div class="dep-item" style="${stagger(i)}">
+        <div class="dep-dept">${d.dept}</div>
+        <div class="dep-what">${d.what}</div>
+        <div class="dep-channel">${d.channel}</div>
+      </div>`).join('');
+  }
+  if (out.length > 0) {
+    html += `<div class="dep-group-title outputs">⬆ Lo que ENTREGA a otros departamentos</div>`;
+    html += out.map((d, i) => `
+      <div class="dep-item" style="${stagger(i)}">
+        <div class="dep-dept">${d.dept}</div>
+        <div class="dep-what">${d.what}</div>
+        <div class="dep-channel">${d.channel}</div>
+      </div>`).join('');
+  }
+  return html;
+}
+
+function renderKPIs() {
+  if (data.kpis.length === 0) return renderPlaceholder('kpis');
+  return data.kpis.map((k, i) => `
+    <div class="kpi-card" style="${stagger(i)}">
+      <div class="kpi-name">${k.name}</div>
+      <div class="kpi-formula">${k.formula}</div>
+      <div class="kpi-meta">
+        <span>📅 ${k.frequency}</span>
+        <span>👤 ${k.responsible}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderPolicies() {
+  if (data.policies.length === 0) return renderPlaceholder('policies');
+  return data.policies.map((p, i) => `
+    <div class="policy" style="${stagger(i)}">
+      <div class="policy-rule">${p.rule}</div>
+      <div class="policy-detail">${p.detail}</div>
+      ${p.exception ? `<div class="policy-exception">Excepción: ${p.exception}</div>` : ''}
+    </div>`).join('');
+}
+
+const renderers = {
+  overview: renderOverview,
+  flow: renderFlow,
+  correlations: renderCorrelations,
+  bottlenecks: renderBottlenecks,
+  opportunities: renderOpportunities,
+  procedures: renderProcedures,
+  structure: renderStructure,
+  dependencies: renderDependencies,
+  kpis: renderKPIs,
+  policies: renderPolicies,
+};
+
+// ── APP STATE ─────────────────────────────────────────────────────────────
+let activeTab = 'overview';
+
+function switchTab(tabId) {
+  activeTab = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  document.getElementById('content').innerHTML = renderers[tabId]();
+}
+
+function toggleSection(el) {
+  el.parentElement.classList.toggle('open');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Header
+  document.getElementById('header-area').innerHTML = `
+    <div class="header-meta">UnaUnCuarto — Molde Departamental</div>
+    <div class="header-title">${data.meta.departamento}</div>
+    <div class="header-sub">${data.meta.alcance}</div>
+    <div class="header-badges">
+      <span class="badge badge-tipo">${data.meta.tipo_proceso}</span>
+      <span class="badge badge-version">v${data.meta.version}</span>
+      <span class="badge badge-fecha">${data.meta.fecha}</span>
+      <span class="badge badge-notacion">${data.meta.notacion}</span>
+    </div>`;
+
+  // Tabs
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = tabs.map(t => {
+    const empty = isTabEmpty(t.id);
+    return `<div class="tab ${t.id === activeTab ? 'active' : ''} ${empty ? 'empty' : 'filled'}" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.icon} ${t.label}</div>`;
+  }).join('');
+
+  // Initial content
+  switchTab(activeTab);
+});
+</script>
+
+<div id="header-area" class="header"></div>
+<div id="tabs" class="tabs"></div>
+<div id="content" class="content"></div>
+
+</body>
+</html>
