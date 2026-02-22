@@ -35,6 +35,12 @@ Tienes una version interactiva con autoevaluacion en:
 
 - `web/curso-interactivo.html`
 
+Esta version ahora sigue el estilo de **Molde Departamental**:
+- pestañas tipo Vista General, Flujo, Llamadas, Cuellos, Oportunidades, Procedimiento, etc.
+- explicacion guiada antes de evaluar
+- laboratorio con feedback inmediato
+- progreso guardado en el navegador
+
 Opciones para abrirla:
 
 1. Abrir el archivo directo en el navegador del celular.

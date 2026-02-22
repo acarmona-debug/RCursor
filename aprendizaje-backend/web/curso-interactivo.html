@@ -1,789 +1,1596 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bootcamp Backend Interactivo</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #121a33;
-      --card: #182345;
-      --txt: #e8ecff;
-      --muted: #a7b0d6;
-      --ok: #32d296;
-      --warn: #f5c542;
-      --bad: #ff6b6b;
-      --accent: #6ea8ff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bootcamp Backend Interactivo - Molde Departamental</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-    * { box-sizing: border-box; }
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-card: #1a1a25;
+    --bg-card-hover: #22222f;
+    --border: #2a2a3a;
+    --border-light: #3a3a4a;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888a0;
+    --text-muted: #555570;
+    --accent-cyan: #00d4ff;
+    --accent-green: #00ff88;
+    --accent-orange: #ff8800;
+    --accent-red: #ff4444;
+    --accent-purple: #aa77ff;
+    --accent-yellow: #ffcc00;
+    --accent-blue: #4488ff;
+    --accent-pink: #ff66aa;
+    --font-mono: 'Space Mono', monospace;
+    --font-sans: 'Inter', sans-serif;
+    --radius: 8px;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #090e1d, #111a35);
-      color: var(--txt);
-      line-height: 1.45;
-    }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    .hero, .module, .panel {
-      background: rgba(18, 26, 51, 0.95);
-      border: 1px solid #24325f;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
+  /* Header */
+  .header {
+    padding: 30px 36px 18px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 12% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 58%),
+      radial-gradient(ellipse at 88% 50%, rgba(170, 119, 255, 0.06) 0%, transparent 56%);
+    pointer-events: none;
+  }
+  .header-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    max-width: 760px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .header-badges {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+  }
+  .badge-tipo { background: rgba(0, 212, 255, 0.12); color: var(--accent-cyan); border-color: rgba(0, 212, 255, 0.25); }
+  .badge-version { background: rgba(0, 255, 136, 0.12); color: var(--accent-green); border-color: rgba(0, 255, 136, 0.25); }
+  .badge-fecha { background: rgba(170, 119, 255, 0.1); color: var(--accent-purple); border-color: rgba(170, 119, 255, 0.24); }
+  .badge-notacion { background: rgba(255, 136, 0, 0.1); color: var(--accent-orange); border-color: rgba(255, 136, 0, 0.2); }
 
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: 1.3rem;
-    }
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 36px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 16px;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active {
+    color: var(--accent-cyan);
+    border-bottom-color: var(--accent-cyan);
+  }
+  .tab.empty::after {
+    content: '○';
+    font-size: 8px;
+    margin-left: 6px;
+    opacity: 0.5;
+  }
+  .tab.filled::after {
+    content: '●';
+    font-size: 8px;
+    margin-left: 6px;
+    color: var(--accent-green);
+  }
 
-    .muted { color: var(--muted); }
-    .small { font-size: 0.92rem; }
+  /* Main content */
+  .content {
+    padding: 28px 36px 60px;
+    max-width: 1120px;
+  }
 
-    .nav {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-    }
+  .placeholder {
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius);
+    padding: 52px 32px;
+    text-align: center;
+    margin: 10px 0;
+  }
+  .placeholder-icon { font-size: 38px; opacity: 0.4; margin-bottom: 12px; }
+  .placeholder-title { font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px; }
+  .placeholder-hint { color: var(--text-muted); font-size: 14px; max-width: 620px; margin: 0 auto 10px; }
+  .placeholder-instruction {
+    display: inline-block;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: rgba(0, 212, 255, 0.08);
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 16px;
+    padding: 6px 12px;
+  }
 
-    .nav a {
-      text-align: center;
-      text-decoration: none;
-      background: #1d2a55;
-      color: #dce6ff;
-      border: 1px solid #2f427f;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 0.9rem;
-    }
+  .section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  .section:hover { border-color: var(--border-light); }
+  .section-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-cyan);
+  }
+  .section-toggle { color: var(--text-muted); font-size: 14px; transition: var(--transition); }
+  .section-body {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.2s ease;
+    border-top: 1px solid transparent;
+  }
+  .section.open .section-body {
+    max-height: 1800px;
+    opacity: 1;
+    border-top-color: var(--border);
+    padding: 14px 16px 16px;
+  }
+  .section.open .section-toggle { transform: rotate(45deg); color: var(--accent-cyan); }
 
-    @media (max-width: 640px) {
-      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+  .item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    animation: fadeUp 0.25s ease forwards;
+    opacity: 0;
+  }
+  .item:last-child { margin-bottom: 0; }
+  .item-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .item-text { flex: 1; font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+  .item-sub { margin-top: 4px; color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
 
-    .question {
-      background: var(--card);
-      border: 1px solid #2a3b71;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
+  .tag {
+    display: inline-block;
+    margin: 8px 6px 0 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-radius: 14px;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+  }
+  .tag-fortaleza { color: var(--accent-green); background: rgba(0, 255, 136, 0.08); border-color: rgba(0, 255, 136, 0.2); }
+  .tag-cuello { color: var(--accent-red); background: rgba(255, 68, 68, 0.1); border-color: rgba(255, 68, 68, 0.2); }
+  .tag-oportunidad { color: var(--accent-orange); background: rgba(255, 136, 0, 0.1); border-color: rgba(255, 136, 0, 0.2); }
+  .tag-riesgo { color: var(--accent-yellow); background: rgba(255, 204, 0, 0.1); border-color: rgba(255, 204, 0, 0.2); }
+  .tag-proceso { color: var(--accent-cyan); background: rgba(0, 212, 255, 0.09); border-color: rgba(0, 212, 255, 0.2); }
+  .tag-contexto { color: var(--accent-purple); background: rgba(170, 119, 255, 0.12); border-color: rgba(170, 119, 255, 0.25); }
+  .tag-practica { color: var(--accent-blue); background: rgba(68, 136, 255, 0.12); border-color: rgba(68, 136, 255, 0.22); }
 
-    .question h4 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-    }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent-cyan);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--border-light); }
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    margin-bottom: 7px;
+    color: var(--text-primary);
+  }
+  .card-desc { color: var(--text-secondary); font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
+  .card-meta { color: var(--text-muted); font-size: 12px; line-height: 1.45; }
 
-    label {
-      display: block;
-      margin: 5px 0;
-    }
+  .severity, .priority {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+  }
+  .severity-critico { color: #ffdddd; background: rgba(255, 68, 68, 0.24); border: 1px solid rgba(255, 68, 68, 0.38); }
+  .severity-alto { color: #ffd8b0; background: rgba(255, 136, 0, 0.18); border: 1px solid rgba(255, 136, 0, 0.3); }
+  .severity-medio { color: #fff2c2; background: rgba(255, 204, 0, 0.16); border: 1px solid rgba(255, 204, 0, 0.28); }
+  .priority-game-changer { color: #ddf9ff; background: rgba(0, 212, 255, 0.2); border: 1px solid rgba(0, 212, 255, 0.35); }
+  .priority-alta { color: #d8ffe8; background: rgba(0, 255, 136, 0.2); border: 1px solid rgba(0, 255, 136, 0.3); }
+  .priority-media { color: #ffe8cc; background: rgba(255, 136, 0, 0.16); border: 1px solid rgba(255, 136, 0, 0.27); }
+  .priority-baja { color: #f0e7ff; background: rgba(170, 119, 255, 0.16); border: 1px solid rgba(170, 119, 255, 0.25); }
 
-    input[type="text"],
-    textarea,
-    select {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid #334985;
-      background: #0f1733;
-      color: var(--txt);
-      padding: 9px;
-      font-size: 0.95rem;
-    }
+  .flow-step {
+    display: flex;
+    gap: 14px;
+    position: relative;
+    margin-bottom: 14px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .flow-step::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 38px;
+    width: 1px;
+    height: calc(100% + 14px);
+    background: var(--border);
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    flex-shrink: 0;
+  }
+  .flow-content {
+    flex: 1;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 12px;
+  }
+  .flow-title { font-family: var(--font-mono); font-size: 12px; margin-bottom: 4px; color: var(--text-primary); }
+  .flow-desc { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+  .flow-branch {
+    margin-top: 8px;
+    border-left: 2px solid var(--accent-purple);
+    padding: 6px 0 6px 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .flow-branch-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-purple);
+    margin-bottom: 3px;
+  }
 
-    textarea {
-      min-height: 92px;
-      resize: vertical;
-    }
+  .correlation {
+    display: grid;
+    grid-template-columns: 1fr 42px 1fr;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .corr-node {
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+  .corr-arrow {
+    text-align: center;
+    color: var(--accent-cyan);
+    font-size: 18px;
+    font-family: var(--font-mono);
+  }
+  .corr-impact {
+    margin: 0 0 12px 10px;
+    font-size: 12px;
+    color: var(--accent-yellow);
+    line-height: 1.45;
+  }
 
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
+  .sipoc {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .sipoc-col {
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    border-radius: 6px;
+    padding: 8px;
+    min-height: 86px;
+  }
+  .sipoc-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-cyan);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .sipoc-items { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 
-    button {
-      border: 1px solid #3c56a0;
-      background: #28408a;
-      color: #f4f7ff;
-      border-radius: 9px;
-      padding: 8px 10px;
-      cursor: pointer;
-      font-size: 0.92rem;
-    }
+  .proc-progress {
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .proc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    border: 1px solid var(--border);
+  }
+  .proc-table th {
+    text-align: left;
+    background: rgba(0, 212, 255, 0.08);
+    color: var(--accent-cyan);
+    padding: 8px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .proc-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .proc-table tr:last-child td { border-bottom: none; }
+  .proc-check {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 6px 10px;
+  }
+  .proc-check input { accent-color: var(--accent-green); }
 
-    button.secondary {
-      background: #1d2c59;
-    }
+  .org-role {
+    display: flex;
+    gap: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .org-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    background: rgba(0, 212, 255, 0.08);
+    flex-shrink: 0;
+  }
+  .org-name { color: var(--text-primary); font-size: 14px; font-weight: 600; }
+  .org-title { color: var(--accent-purple); font-size: 12px; margin-bottom: 3px; }
+  .org-functions { color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
+  .org-auth {
+    margin-top: 6px;
+    color: var(--accent-orange);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
 
-    .result {
-      margin-top: 7px;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 0.9rem;
-      border: 1px dashed #3a4d8f;
-      background: #111a35;
-    }
+  .dep-group-title {
+    margin: 14px 0 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .dep-group-title.inputs { color: var(--accent-cyan); }
+  .dep-group-title.outputs { color: var(--accent-green); }
+  .dep-item {
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 180px 1fr 190px;
+    gap: 10px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .dep-dept { color: var(--text-primary); font-weight: 600; font-size: 13px; }
+  .dep-what { color: var(--text-secondary); font-size: 13px; line-height: 1.4; }
+  .dep-channel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    align-self: center;
+    justify-self: end;
+  }
 
-    .ok { color: var(--ok); }
-    .warn { color: var(--warn); }
-    .bad { color: var(--bad); }
+  .lab-head {
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .lab-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .lab-chip {
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .lab-chip-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .lab-chip-value { color: var(--text-secondary); font-size: 13px; }
+  .lab-score {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .lab-question {
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .lab-question h4 {
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .lab-option {
+    display: block;
+    margin: 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .lab-option input { margin-right: 6px; accent-color: var(--accent-cyan); }
+  .lab-text {
+    width: 100%;
+    margin-top: 4px;
+    min-height: 86px;
+    resize: vertical;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 8px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .lab-result {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .lab-result.ok { color: var(--accent-green); }
+  .lab-result.warn { color: var(--accent-yellow); }
+  .lab-result.bad { color: var(--accent-red); }
+  .lab-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn {
+    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .btn-primary { background: rgba(0, 212, 255, 0.12); border-color: rgba(0, 212, 255, 0.3); color: var(--accent-cyan); }
+  .btn-primary:hover { background: rgba(0, 212, 255, 0.18); }
 
-    .module-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
+  .policy {
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+    animation: fadeUp 0.24s ease forwards;
+    opacity: 0;
+  }
+  .policy-rule {
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .policy-detail { color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
+  .policy-exception { margin-top: 7px; color: var(--accent-orange); font-size: 12px; }
 
-    .pill {
-      border-radius: 999px;
-      padding: 4px 9px;
-      border: 1px solid #3a4d8f;
-      background: #101936;
-      font-size: 0.82rem;
-      white-space: nowrap;
-    }
+  code {
+    font-family: var(--font-mono);
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    color: var(--accent-cyan);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 11px;
+  }
 
-    .progress {
-      width: 100%;
-      height: 12px;
-      border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid #2f427d;
-      background: #0f1731;
-      margin-top: 8px;
-    }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .progress > div {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #4e7cff, #38d1a6);
-      transition: width 0.2s ease;
-    }
-
-    details {
-      margin-top: 8px;
-      background: #0f1733;
-      border: 1px solid #324885;
-      border-radius: 8px;
-      padding: 7px;
-    }
-
-    summary { cursor: pointer; }
-
-    code {
-      background: #0f1730;
-      border: 1px solid #32457c;
-      border-radius: 6px;
-      padding: 1px 5px;
-    }
-  </style>
+  @media (max-width: 900px) {
+    .content { padding: 22px 16px 50px; }
+    .header { padding: 22px 16px 14px; }
+    .tabs { padding: 0 16px; }
+    .header-title { font-size: 22px; }
+    .sipoc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dep-item { grid-template-columns: 1fr; }
+    .dep-channel { justify-self: start; }
+    .lab-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-  <main class="wrap">
-    <section class="hero">
-      <h1>Bootcamp Backend Interactivo (movil)</h1>
-      <p class="muted small">
-        Este modo te corrige al instante (sin volver al chat en cada pregunta), guarda tu avance en tu celular y te muestra pistas.
-      </p>
-      <p class="small">
-        Nota tecnica: un chat IA en vivo no se puede incrustar aqui sin una API externa y token.
-        Mientras tanto, este "instructor automatico" evalua tus respuestas y te guia paso a paso.
-      </p>
-      <div class="nav">
-        <a href="#m0">M0 HTTP</a>
-        <a href="#m1">M1 PHP basico</a>
-        <a href="#m2">M2 Funciones</a>
-        <a href="#m3">M3 SQLite/PDO</a>
-        <a href="#m4">M4 Endpoints</a>
-        <a href="#m5">M5 SQL</a>
-      </div>
-      <div class="progress" aria-label="Progreso total">
-        <div id="global-progress"></div>
-      </div>
-      <p id="global-label" class="small muted">Progreso total: 0%</p>
-    </section>
 
-    <section id="m0" class="module">
-      <div class="module-head">
-        <h2>M0 - Fundamentos web y HTTP</h2>
-        <span id="badge-m0" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: request/response, metodos HTTP, codigos de estado.</p>
+<div id="header-area" class="header"></div>
+<div id="tabs" class="tabs"></div>
+<div id="content" class="content"></div>
 
-      <article class="question" data-module="m0" data-type="choice" data-id="m0_q1" data-correct="GET">
-        <h4>1) Para listar usuarios, que metodo usas?</h4>
-        <label><input type="radio" name="m0_q1" value="GET"> GET</label>
-        <label><input type="radio" name="m0_q1" value="POST"> POST</label>
-        <div class="result"></div>
-        <details><summary>Pista</summary>Leer datos casi siempre usa GET.</details>
-      </article>
+<script>
+const storageKey = "bootcamp_backend_molde_v2";
 
-      <article class="question" data-module="m0" data-type="choice" data-id="m0_q2" data-correct="POST">
-        <h4>2) Para crear un usuario nuevo, que metodo usas?</h4>
-        <label><input type="radio" name="m0_q2" value="GET"> GET</label>
-        <label><input type="radio" name="m0_q2" value="POST"> POST</label>
-        <div class="result"></div>
-      </article>
+const data = {
+  meta: {
+    departamento: "Bootcamp Backend desde Cero",
+    responsable: "Instructor virtual",
+    tipo_proceso: "formacion-tecnica",
+    alcance: "Ruta guiada para aprender HTTP, PHP, base de datos, llamadas y endpoints sin ir directo al examen.",
+    notacion: "PRS-WEB-LEARN-001",
+    version: "2.0",
+    fecha: "22/02/26",
+  },
 
-      <article class="question" data-module="m0" data-type="choice" data-id="m0_q3" data-correct="400">
-        <h4>3) Falta email en un POST. Que status code?</h4>
-        <label><input type="radio" name="m0_q3" value="200"> 200</label>
-        <label><input type="radio" name="m0_q3" value="400"> 400</label>
-        <label><input type="radio" name="m0_q3" value="500"> 500</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m0" data-type="choice" data-id="m0_q4" data-correct="404">
-        <h4>4) Pides usuario 99 y no existe. Que status code?</h4>
-        <label><input type="radio" name="m0_q4" value="404"> 404</label>
-        <label><input type="radio" name="m0_q4" value="201"> 201</label>
-        <label><input type="radio" name="m0_q4" value="500"> 500</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m0" data-type="text_groups" data-id="m0_q5"
-        data-groups="query|param|url;body|json|payload"
-        data-hint="Explica que query params van en URL y body va en el cuerpo de la peticion.">
-        <h4>5) Explica diferencia entre query params y body.</h4>
-        <textarea name="m0_q5" placeholder="Escribe tu explicacion"></textarea>
-        <div class="result"></div>
-      </article>
-
-      <h3>Matching rapido</h3>
-      <article class="question" data-module="m0" data-type="select" data-id="m0_m1" data-correct="DELETE">
-        <h4>A) Borrar un producto</h4>
-        <select name="m0_m1">
-          <option value="">Selecciona</option>
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m0" data-type="select" data-id="m0_m2" data-correct="POST">
-        <h4>B) Crear una orden</h4>
-        <select name="m0_m2">
-          <option value="">Selecciona</option>
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m0" data-type="select" data-id="m0_m3" data-correct="GET">
-        <h4>C) Obtener lista de ordenes</h4>
-        <select name="m0_m3">
-          <option value="">Selecciona</option>
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m0" data-type="select" data-id="m0_m4" data-correct="PUT">
-        <h4>D) Actualizar perfil de usuario</h4>
-        <select name="m0_m4">
-          <option value="">Selecciona</option>
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m0">Revisar modulo M0</button>
-      </div>
-      <p id="score-m0" class="small muted">Sin revisar</p>
-    </section>
-
-    <section id="m1" class="module">
-      <div class="module-head">
-        <h2>M1 - PHP basico</h2>
-        <span id="badge-m1" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: variables, if, loops, salida.</p>
-
-      <article class="question" data-module="m1" data-type="choice" data-id="m1_q1" data-correct="$">
-        <h4>1) Que simbolo inicia una variable en PHP?</h4>
-        <label><input type="radio" name="m1_q1" value="$"> $</label>
-        <label><input type="radio" name="m1_q1" value="@">@</label>
-        <label><input type="radio" name="m1_q1" value="#">#</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m1" data-type="choice" data-id="m1_q2" data-correct="echo">
-        <h4>2) Que palabra imprime texto en consola?</h4>
-        <label><input type="radio" name="m1_q2" value="printline">printline</label>
-        <label><input type="radio" name="m1_q2" value="echo">echo</label>
-        <label><input type="radio" name="m1_q2" value="sout">sout</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m1" data-type="text_groups" data-id="m1_q3"
-        data-groups="if;age|edad;>=|mayor"
-        data-hint="Escribe una condicion para mayor de edad usando if y age/edad.">
-        <h4>3) Escribe un mini ejemplo para validar mayor de edad.</h4>
-        <textarea name="m1_q3" placeholder="Ejemplo: if (...) { ... }"></textarea>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m1">Revisar modulo M1</button>
-      </div>
-      <p id="score-m1" class="small muted">Sin revisar</p>
-    </section>
-
-    <section id="m2" class="module">
-      <div class="module-head">
-        <h2>M2 - Funciones y arrays</h2>
-        <span id="badge-m2" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: crear funciones y recorrer arrays.</p>
-
-      <article class="question" data-module="m2" data-type="choice" data-id="m2_q1" data-correct="true">
-        <h4>1) Si price = 120 y regla es "caro si > 100", isExpensive retorna?</h4>
-        <label><input type="radio" name="m2_q1" value="true"> true</label>
-        <label><input type="radio" name="m2_q1" value="false"> false</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m2" data-type="text_groups" data-id="m2_q2"
-        data-groups="function;return;> 100|mayor a 100"
-        data-hint="Necesitas function, return y regla de precio mayor a 100.">
-        <h4>2) Escribe una version corta de isExpensive.</h4>
-        <textarea name="m2_q2" placeholder="function isExpensive(...) { ... }"></textarea>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m2" data-type="choice" data-id="m2_q3" data-correct="foreach">
-        <h4>3) Para recorrer un array en PHP, que usas normalmente?</h4>
-        <label><input type="radio" name="m2_q3" value="forchar">forchar</label>
-        <label><input type="radio" name="m2_q3" value="foreach">foreach</label>
-        <label><input type="radio" name="m2_q3" value="maparray">maparray</label>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m2">Revisar modulo M2</button>
-      </div>
-      <p id="score-m2" class="small muted">Sin revisar</p>
-    </section>
-
-    <section id="m3" class="module">
-      <div class="module-head">
-        <h2>M3 - SQLite y PDO</h2>
-        <span id="badge-m3" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: crear tabla, insertar, consultar, consulta preparada.</p>
-
-      <article class="question" data-module="m3" data-type="choice" data-id="m3_q1" data-correct="SQLite">
-        <h4>1) Para practica local simple, cual base de datos encaja mejor?</h4>
-        <label><input type="radio" name="m3_q1" value="SQLite">SQLite</label>
-        <label><input type="radio" name="m3_q1" value="Oracle">Oracle</label>
-        <label><input type="radio" name="m3_q1" value="Ninguna">Ninguna</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m3" data-type="text_groups" data-id="m3_q2"
-        data-groups="prepare|preparad;seguridad|injection|inyeccion|sql injection"
-        data-hint="Habla de seguridad y de evitar SQL injection con prepared statements.">
-        <h4>2) Por que usar consultas preparadas?</h4>
-        <textarea name="m3_q2" placeholder="Tu explicacion"></textarea>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m3" data-type="regex" data-id="m3_q3"
-        data-regex="where\s+email\s*=\s*(:email|\?)"
-        data-hint="Ejemplo: SELECT * FROM users WHERE email = :email">
-        <h4>3) Escribe una consulta segura para buscar por email.</h4>
-        <textarea name="m3_q3" placeholder="SELECT ..."></textarea>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m3">Revisar modulo M3</button>
-      </div>
-      <p id="score-m3" class="small muted">Sin revisar</p>
-    </section>
-
-    <section id="m4" class="module">
-      <div class="module-head">
-        <h2>M4 - Endpoints basicos</h2>
-        <span id="badge-m4" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: GET/POST en endpoints y respuestas JSON.</p>
-
-      <article class="question" data-module="m4" data-type="choice" data-id="m4_q1" data-correct="GET /users">
-        <h4>1) Cual ruta/metodo lista usuarios?</h4>
-        <label><input type="radio" name="m4_q1" value="POST /users">POST /users</label>
-        <label><input type="radio" name="m4_q1" value="GET /users">GET /users</label>
-        <label><input type="radio" name="m4_q1" value="DELETE /users">DELETE /users</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m4" data-type="choice" data-id="m4_q2" data-correct="201">
-        <h4>2) Si POST /users crea bien, que status code esperas?</h4>
-        <label><input type="radio" name="m4_q2" value="200">200</label>
-        <label><input type="radio" name="m4_q2" value="201">201</label>
-        <label><input type="radio" name="m4_q2" value="404">404</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m4" data-type="text_groups" data-id="m4_q3"
-        data-groups="name;email;json|llaves"
-        data-hint="Debe incluir campos name y email en JSON.">
-        <h4>3) Escribe un body JSON valido para crear usuario.</h4>
-        <textarea name="m4_q3" placeholder='{"name":"Ana","email":"ana@example.com"}'></textarea>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m4" data-type="text_groups" data-id="m4_q4"
-        data-groups="curl;-x post|post;content-type|application/json"
-        data-hint="Incluye curl, POST y Content-Type JSON.">
-        <h4>4) Escribe un curl para POST /users.</h4>
-        <textarea name="m4_q4" placeholder='curl -i -X POST http://localhost:8000/users ...'></textarea>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m4">Revisar modulo M4</button>
-      </div>
-      <p id="score-m4" class="small muted">Sin revisar</p>
-    </section>
-
-    <section id="m5" class="module">
-      <div class="module-head">
-        <h2>M5 - SQL practica</h2>
-        <span id="badge-m5" class="pill">Pendiente</span>
-      </div>
-      <p class="small muted">Meta: SELECT, ORDER BY, LIMIT, UPDATE, DELETE.</p>
-
-      <article class="question" data-module="m5" data-type="choice" data-id="m5_q1" data-correct="ORDER BY price DESC LIMIT 2">
-        <h4>1) Como pides 2 productos mas caros?</h4>
-        <label><input type="radio" name="m5_q1" value="ORDER BY price DESC LIMIT 2">ORDER BY price DESC LIMIT 2</label>
-        <label><input type="radio" name="m5_q1" value="LIMIT 2 ORDER BY price ASC">LIMIT 2 ORDER BY price ASC</label>
-        <label><input type="radio" name="m5_q1" value="TOP 2">TOP 2</label>
-        <div class="result"></div>
-      </article>
-
-      <article class="question" data-module="m5" data-type="regex" data-id="m5_q2"
-        data-regex="sum\s*\(\s*price\s*\*\s*stock\s*\)"
-        data-hint="Formula esperada: SUM(price * stock)">
-        <h4>2) Escribe consulta para valor total de inventario.</h4>
-        <textarea name="m5_q2" placeholder="SELECT SUM(price * stock) AS total FROM products;"></textarea>
-        <div class="result"></div>
-      </article>
-
-      <div class="btn-row">
-        <button type="button" data-eval="m5">Revisar modulo M5</button>
-      </div>
-      <p id="score-m5" class="small muted">Sin revisar</p>
-    </section>
-
-    <section class="panel">
-      <h3>Herramientas</h3>
-      <div class="btn-row">
-        <button id="eval-all" type="button">Revisar todo</button>
-        <button id="copy-progress" class="secondary" type="button">Copiar progreso</button>
-        <button id="clear-data" class="secondary" type="button">Reiniciar respuestas</button>
-      </div>
-      <p class="small muted">
-        "Copiar progreso" te genera un resumen para guardar en notas o enviar por mensaje.
-      </p>
-      <textarea id="report-box" readonly placeholder="Aqui aparece tu resumen..."></textarea>
-    </section>
-  </main>
-
-  <script>
-    (function () {
-      const storageKey = "bootcamp_backend_mobile_v1";
-      const moduleIds = ["m0", "m1", "m2", "m3", "m4", "m5"];
-      const moduleScores = {
-        m0: null,
-        m1: null,
-        m2: null,
-        m3: null,
-        m4: null,
-        m5: null
-      };
-
-      function normalizeText(text) {
-        return (text || "")
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/\s+/g, " ")
-          .trim();
-      }
-
-      function loadState() {
-        try {
-          const raw = localStorage.getItem(storageKey);
-          return raw ? JSON.parse(raw) : {};
-        } catch (err) {
-          return {};
+  overview: [
+    {
+      title: "Mapa completo antes de tocar codigo",
+      items: [
+        {
+          text: "Primero entiendes el flujo web: cliente -> servidor -> base de datos -> respuesta.",
+          sub: "Si entiendes este recorrido, PHP y SQL dejan de verse como piezas sueltas.",
+          tags: ["contexto", "proceso"]
+        },
+        {
+          text: "Despues practicas HTTP: GET, POST, codigos 200/201/400/404/500.",
+          sub: "Estos codigos son el idioma que tu API habla con el frontend.",
+          tags: ["proceso", "fortaleza"]
+        },
+        {
+          text: "Luego pasas a PHP basico y PHP con PDO para hablar con SQLite.",
+          sub: "Aprendes el camino minimo para construir endpoints que guarden y consulten datos.",
+          tags: ["proceso", "practica"]
         }
-      }
-
-      function saveState(state) {
-        localStorage.setItem(storageKey, JSON.stringify(state));
-      }
-
-      function bindPersistence() {
-        const state = loadState();
-        const fields = document.querySelectorAll("input, textarea, select");
-        fields.forEach((field) => {
-          if (!field.name && !field.id) return;
-          const key = field.name || field.id;
-
-          if (field.type === "radio") {
-            if (state[key] && field.value === state[key]) {
-              field.checked = true;
-            }
-            field.addEventListener("change", () => {
-              const now = loadState();
-              now[key] = field.value;
-              saveState(now);
-            });
-          } else {
-            if (typeof state[key] === "string") {
-              field.value = state[key];
-            }
-            const save = () => {
-              const now = loadState();
-              now[key] = field.value;
-              saveState(now);
-            };
-            field.addEventListener("input", save);
-            field.addEventListener("change", save);
-          }
-        });
-      }
-
-      function getAnswer(questionEl) {
-        const type = questionEl.dataset.type;
-        const id = questionEl.dataset.id;
-        if (type === "choice") {
-          const checked = questionEl.querySelector(`input[name="${id}"]:checked`);
-          return checked ? checked.value : "";
+      ]
+    },
+    {
+      title: "Glosario rapido (en palabras simples)",
+      items: [
+        {
+          text: "Request: lo que el cliente pide.",
+          sub: "Trae metodo, ruta, headers y a veces body.",
+          tags: ["contexto"]
+        },
+        {
+          text: "Response: lo que el servidor devuelve.",
+          sub: "Incluye status code y cuerpo (usualmente JSON).",
+          tags: ["contexto"]
+        },
+        {
+          text: "Endpoint: puerta especifica de tu API.",
+          sub: "Ejemplo: GET /users o POST /users.",
+          tags: ["proceso"]
+        },
+        {
+          text: "Base de datos: donde persistes la informacion.",
+          sub: "Para empezar: SQLite + PDO.",
+          tags: ["proceso", "fortaleza"]
         }
-        if (type === "select") {
-          const sel = questionEl.querySelector(`select[name="${id}"]`);
-          return sel ? sel.value : "";
+      ]
+    },
+    {
+      title: "Como estudiar este tablero (sin estres)",
+      items: [
+        {
+          text: "Abre tabs en orden: Vista General -> Flujo -> Llamadas -> Procedimiento -> Laboratorio.",
+          sub: "No saltes directo a preguntas. Primero teoria corta, despues ejecucion.",
+          tags: ["fortaleza", "proceso"]
+        },
+        {
+          text: "Marca cada procedimiento cuando lo termines.",
+          sub: "El avance se guarda en tu celular automaticamente.",
+          tags: ["practica", "fortaleza"]
+        },
+        {
+          text: "Haz el Laboratorio y repite hasta sacar 80%+.",
+          sub: "La mejora viene por iteraciones cortas, no por memorizar todo de una.",
+          tags: ["oportunidad", "proceso"]
         }
-        const txt = questionEl.querySelector(`textarea[name="${id}"]`);
-        return txt ? txt.value : "";
+      ]
+    }
+  ],
+
+  flow: [
+    {
+      num: "01",
+      title: "Cliente envia request",
+      desc: "El navegador o app manda una peticion como GET /users o POST /users con JSON.",
+      responsible: "Frontend o cliente API",
+      type: "step",
+      color_bg: "#0a1a2a",
+      color_text: "var(--accent-cyan)"
+    },
+    {
+      num: "02",
+      title: "Router de PHP identifica ruta y metodo",
+      desc: "Tu archivo index.php revisa REQUEST_METHOD y REQUEST_URI para decidir que bloque ejecutar.",
+      responsible: "Servidor PHP",
+      type: "step",
+      color_bg: "#101a2d",
+      color_text: "var(--accent-blue)"
+    },
+    {
+      num: "03",
+      title: "Validacion de entrada",
+      desc: "Antes de guardar, validas campos requeridos. Si falta info: response 400.",
+      responsible: "Capa de endpoint",
+      type: "decision",
+      color_bg: "#1f1408",
+      color_text: "var(--accent-yellow)",
+      branches: [
+        { label: "VALIDO", desc: "Continua a BD y crea recurso." },
+        { label: "INVALIDO", desc: "Responde error claro en JSON con status 400." }
+      ]
+    },
+    {
+      num: "04",
+      title: "Operacion en base de datos",
+      desc: "Con PDO ejecutas consulta preparada para evitar SQL injection y manejar errores.",
+      responsible: "Servidor + SQLite",
+      type: "step",
+      color_bg: "#0d1d12",
+      color_text: "var(--accent-green)"
+    },
+    {
+      num: "05",
+      title: "Construir response",
+      desc: "Devuelves JSON consistente. Ejemplo: 201 si crea usuario, 200 si lista datos.",
+      responsible: "Endpoint",
+      type: "step",
+      color_bg: "#1a132a",
+      color_text: "var(--accent-purple)"
+    }
+  ],
+
+  correlations: [
+    {
+      from: "No validar body",
+      from_detail: "Se acepta cualquier payload sin checks",
+      to: "Errores de datos y respuestas 500",
+      to_detail: "Campos nulos, tipos incorrectos, errores en insert",
+      impact: "Pierdes tiempo depurando fallos que podias atrapar con 3 validaciones.",
+      type: "directa"
+    },
+    {
+      from: "Concatenar SQL manual",
+      from_detail: "Ej: \"... WHERE email = '\" + email + \"'\"",
+      to: "Riesgo SQL injection",
+      to_detail: "El usuario puede inyectar sentencias no esperadas",
+      impact: "Debilidad de seguridad evitable con prepared statements.",
+      type: "directa"
+    },
+    {
+      from: "Respuestas sin estandar",
+      from_detail: "A veces string, a veces HTML, a veces JSON",
+      to: "Frontend confuso",
+      to_detail: "No sabe como mostrar errores de forma consistente",
+      impact: "UX mala y mas codigo en frontend para parchar inconsistencias.",
+      type: "directa"
+    },
+    {
+      from: "Entender bien HTTP",
+      from_detail: "Usar metodo y status correctos",
+      to: "Depuracion mas rapida",
+      to_detail: "Sabes en que capa esta el problema",
+      impact: "Sube tu velocidad de desarrollo y baja frustracion.",
+      type: "inversa"
+    }
+  ],
+
+  bottlenecks: [
+    {
+      title: "Saltar a codear sin mapa mental",
+      severity: "alto",
+      desc: "Intentar construir endpoints sin entender request/response lleva a codigo desordenado.",
+      impact: "Solucion: repasar primero Vista General y Flujo antes de tocar PHP."
+    },
+    {
+      title: "Confundir query params con body",
+      severity: "medio",
+      desc: "Se intenta enviar todo por URL o todo por body sin criterio.",
+      impact: "Regla: filtros simples en query, datos de creacion/actualizacion en body JSON."
+    },
+    {
+      title: "No manejar errores de forma explicita",
+      severity: "critico",
+      desc: "El backend falla y responde cosas ambiguas, sin status ni mensaje util.",
+      impact: "Solucion: centraliza respuesta JSON y usa 400/404/409/500 correctamente."
+    },
+    {
+      title: "Practicar solo teoria",
+      severity: "alto",
+      desc: "Leer sin ejecutar comandos reales da falsa sensacion de avance.",
+      impact: "Solucion: completar Procedimiento y marcar cada paso terminado."
+    }
+  ],
+
+  opportunities: [
+    {
+      title: "Plantilla base para cada endpoint",
+      priority: "game-changer",
+      desc: "Usar un esqueleto fijo: validar -> procesar -> responder JSON.",
+      benefit: "Menos errores repetidos y codigo mas mantenible."
+    },
+    {
+      title: "Bitacora personal de errores",
+      priority: "alta",
+      desc: "Registrar cada error, causa real y correccion aplicada.",
+      benefit: "Aceleras aprendizaje porque dejas de tropezar con lo mismo."
+    },
+    {
+      title: "Pruebas con curl antes del frontend",
+      priority: "alta",
+      desc: "Validar endpoints en terminal primero evita culpar al frontend por errores backend.",
+      benefit: "Diagnostico mas rapido y desarrollo desacoplado."
+    },
+    {
+      title: "Mini proyecto final: API de tareas",
+      priority: "media",
+      desc: "Construir CRUD de tasks para consolidar HTTP + PHP + SQLite.",
+      benefit: "Portafolio real para mostrar progreso tecnico."
+    }
+  ],
+
+  procedures: [
+    {
+      code: "PRS-WEB-001",
+      name: "Levantar API local y probar salud",
+      sipoc: {
+        suppliers: ["Entorno local", "PHP instalado"],
+        inputs: ["archivo index.php", "comando de servidor embebido"],
+        process: "Arrancar servidor -> llamar /health -> validar status",
+        outputs: ["API corriendo", "respuesta 200 OK"],
+        customers: ["Estudiante", "futuro frontend"]
+      },
+      steps: [
+        { num: 1, responsible: "Estudiante", action: "Ubicate en carpeta <code>aprendizaje-backend</code>.", doc: "Terminal" },
+        { num: 2, responsible: "Estudiante", action: "Ejecuta <code>php -S localhost:8000 ejercicios/api/index.php</code>.", doc: "Command" },
+        { num: 3, responsible: "Estudiante", action: "Prueba <code>curl -i http://localhost:8000/health</code>.", doc: "curl" },
+        { num: 4, responsible: "Estudiante", action: "Confirma status 200 y JSON <code>{\"ok\":true}</code>.", doc: "Validacion manual" }
+      ]
+    },
+    {
+      code: "PRS-WEB-002",
+      name: "Listar y crear usuarios con endpoint",
+      sipoc: {
+        suppliers: ["Cliente HTTP", "Payload JSON"],
+        inputs: ["GET /users", "POST /users con name y email"],
+        process: "Validar body -> insertar -> listar resultados",
+        outputs: ["lista de usuarios", "usuario creado con id"],
+        customers: ["Frontend", "QA"]
+      },
+      steps: [
+        { num: 1, responsible: "Estudiante", action: "Lista usuarios: <code>curl -i http://localhost:8000/users</code>.", doc: "curl" },
+        { num: 2, responsible: "Estudiante", action: "Crea usuario: <code>curl -i -X POST http://localhost:8000/users -H \"Content-Type: application/json\" -d '{\"name\":\"Ana\",\"email\":\"ana@example.com\"}'</code>.", doc: "curl" },
+        { num: 3, responsible: "Endpoint", action: "Si falta name o email, devolver <code>400</code> con mensaje claro.", doc: "index.php" },
+        { num: 4, responsible: "Endpoint", action: "Si email repetido, devolver <code>409</code>.", doc: "index.php" },
+        { num: 5, responsible: "Estudiante", action: "Verifica que GET /users ya incluya el nuevo registro.", doc: "curl" }
+      ]
+    },
+    {
+      code: "PRS-DB-001",
+      name: "Conectar SQLite con PDO de forma segura",
+      sipoc: {
+        suppliers: ["PHP PDO", "archivo .db"],
+        inputs: ["sentencias SQL", "consultas preparadas"],
+        process: "crear tabla -> insertar -> consultar por email",
+        outputs: ["datos persistidos", "consulta segura"],
+        customers: ["Endpoints", "Aplicacion backend"]
+      },
+      steps: [
+        { num: 1, responsible: "Estudiante", action: "Ejecuta <code>php ejercicios/03_sqlite_pdo.php</code>.", doc: "Script M3" },
+        { num: 2, responsible: "Script", action: "Crea tabla users si no existe.", doc: "CREATE TABLE" },
+        { num: 3, responsible: "Script", action: "Inserta datos semilla con sentencia preparada.", doc: "prepare + execute" },
+        { num: 4, responsible: "Script", action: "Busca usuario por email usando parametro <code>:email</code>.", doc: "SELECT preparado" },
+        { num: 5, responsible: "Estudiante", action: "Confirma salida esperada en consola.", doc: "Validacion manual" }
+      ]
+    }
+  ],
+
+  structure: [
+    {
+      name: "Cliente (navegador / app / curl)",
+      title: "Consumidor del endpoint",
+      initials: "CL",
+      reports_to: null,
+      functions: "Envia requests con metodo y datos, recibe response y decide que mostrar al usuario.",
+      auth_limit: "Solo consume API; no toca DB directa."
+    },
+    {
+      name: "Router PHP (index.php)",
+      title: "Controlador de rutas",
+      initials: "RT",
+      reports_to: "Servidor PHP",
+      functions: "Lee REQUEST_METHOD y REQUEST_URI, decide si ejecutar /health, /users GET o /users POST.",
+      auth_limit: "Define codigos de estado y formato JSON."
+    },
+    {
+      name: "Capa de validacion",
+      title: "Guardia de calidad de datos",
+      initials: "VL",
+      reports_to: "Router",
+      functions: "Verifica campos obligatorios, tipos y reglas antes de tocar la base de datos.",
+      auth_limit: "Puede bloquear request con 400."
+    },
+    {
+      name: "Capa de persistencia (PDO + SQLite)",
+      title: "Acceso a datos",
+      initials: "DB",
+      reports_to: "Endpoint",
+      functions: "Ejecuta CREATE/SELECT/INSERT con consultas preparadas y manejo de excepciones.",
+      auth_limit: "No expone SQL crudo al cliente."
+    },
+    {
+      name: "Respuesta API",
+      title: "Contrato con frontend",
+      initials: "RS",
+      reports_to: "Endpoint",
+      functions: "Devuelve status y JSON consistente para exito y error.",
+      auth_limit: "Define mensaje final y codigo HTTP."
+    }
+  ],
+
+  dependencies: {
+    inputs: [
+      { dept: "Runtime", what: "PHP 8.2+ y extension PDO SQLite habilitada", channel: "instalacion local" },
+      { dept: "Herramienta HTTP", what: "curl para probar endpoints", channel: "terminal" },
+      { dept: "Editor", what: "VS Code u otro editor para tocar index.php y scripts", channel: "desktop o movil con editor" },
+      { dept: "Base de datos", what: "Archivo SQLite local (.db)", channel: "filesystem" }
+    ],
+    outputs: [
+      { dept: "Portafolio", what: "API basica con /health y /users", channel: "repo git" },
+      { dept: "Frontend futuro", what: "Contrato JSON claro con status consistentes", channel: "http/json" },
+      { dept: "Aprendizaje", what: "Base solida para pasar a Laravel, Node o Django", channel: "conocimiento transferible" }
+    ]
+  },
+
+  kpis: [
+    {
+      name: "Progreso de procedimientos",
+      formula: "procedimientos marcados / total",
+      frequency: "cada sesion",
+      responsible: "estudiante"
+    },
+    {
+      name: "Precision en laboratorio",
+      formula: "puntaje del quiz de conceptos clave",
+      frequency: "cada intento",
+      responsible: "estudiante"
+    },
+    {
+      name: "Consistencia de practica",
+      formula: "dias con al menos 1 ejercicio ejecutado",
+      frequency: "semanal",
+      responsible: "estudiante"
+    }
+  ],
+
+  policies: [
+    {
+      rule: "Primero entender, luego responder preguntas",
+      detail: "Cada modulo debe iniciar con teoria corta antes de pasar a evaluacion.",
+      exception: "Solo si quieres autoevaluarte rapido para detectar vacios."
+    },
+    {
+      rule: "Toda entrada se valida",
+      detail: "Nunca confiar en datos del cliente. Valida presencia, formato y reglas de negocio.",
+      exception: "Ninguna en backend productivo."
+    },
+    {
+      rule: "Consultas SQL siempre preparadas",
+      detail: "Evita concatenacion de strings SQL para reducir riesgos de inyeccion.",
+      exception: "Consultas estaticas sin input de usuario."
+    },
+    {
+      rule: "Errores legibles y con status correcto",
+      detail: "Un error util acelera depuracion del frontend y del propio backend.",
+      exception: "En produccion, ocultar detalles sensibles pero mantener claridad funcional."
+    },
+    {
+      rule: "Pequenas iteraciones, no maratones",
+      detail: "Aprende por ciclos cortos: teoria -> practica -> feedback -> ajuste.",
+      exception: null
+    }
+  ]
+};
+
+const tabs = [
+  { id: "overview",      label: "Vista General",  icon: "🧠", dataKey: "overview" },
+  { id: "flow",          label: "Flujo",          icon: "🔀", dataKey: "flow" },
+  { id: "correlations",  label: "Llamadas",       icon: "📡", dataKey: "correlations" },
+  { id: "bottlenecks",   label: "Cuellos",        icon: "🚨", dataKey: "bottlenecks" },
+  { id: "opportunities", label: "Oportunidades",  icon: "🚀", dataKey: "opportunities" },
+  { id: "procedures",    label: "Procedimiento",  icon: "📋", dataKey: "procedures" },
+  { id: "structure",     label: "Arquitectura",   icon: "👥", dataKey: "structure" },
+  { id: "dependencies",  label: "Herramientas",   icon: "🧰", dataKey: "dependencies" },
+  { id: "kpis",          label: "Laboratorio",    icon: "🧪", dataKey: "kpis" },
+  { id: "policies",      label: "Reglas",         icon: "⚙️", dataKey: "policies" }
+];
+
+const placeholders = {
+  overview:      { icon: "🧠", title: "Vista General vacia", hint: "Aqui debes cargar una explicacion base antes de evaluar.", instruction: "INPUT: Fundamentos y glosario" },
+  flow:          { icon: "🔀", title: "Flujo vacio", hint: "Describe paso a paso como viaja una request.", instruction: "INPUT: Ciclo request-response" },
+  correlations:  { icon: "📡", title: "Llamadas vacias", hint: "Relaciona decisiones tecnicas con consecuencias reales.", instruction: "INPUT: Causa-efecto backend" },
+  bottlenecks:   { icon: "🚨", title: "Cuellos vacios", hint: "Incluye bloqueos comunes de principiantes.", instruction: "INPUT: Problemas reales de aprendizaje" },
+  opportunities: { icon: "🚀", title: "Oportunidades vacias", hint: "Define mejoras accionables con beneficio concreto.", instruction: "INPUT: Plan de mejora" },
+  procedures:    { icon: "📋", title: "Procedimientos vacios", hint: "Cada procedimiento debe tener pasos concretos.", instruction: "INPUT: SOP practico" },
+  structure:     { icon: "👥", title: "Arquitectura vacia", hint: "Muestra roles y responsabilidades del sistema.", instruction: "INPUT: Mapa de componentes" },
+  dependencies:  { icon: "🧰", title: "Herramientas vacias", hint: "Que necesitas y que entregas al finalizar.", instruction: "INPUT: Dependencias tecnicas" },
+  kpis:          { icon: "🧪", title: "Laboratorio vacio", hint: "Incluye preguntas de practica con feedback.", instruction: "INPUT: Evaluacion interactiva" },
+  policies:      { icon: "⚙️", title: "Reglas vacias", hint: "Reglas para estudiar y construir backend limpio.", instruction: "INPUT: Buenas practicas" }
+};
+
+const labQuestions = [
+  {
+    id: "q1",
+    type: "choice",
+    prompt: "1) Para listar usuarios, cual es el metodo correcto?",
+    options: ["GET", "POST", "DELETE"],
+    correct: "GET",
+    explanation: "GET se usa para consultar datos."
+  },
+  {
+    id: "q2",
+    type: "choice",
+    prompt: "2) Para crear un usuario nuevo, cual metodo usas?",
+    options: ["POST", "GET", "PATCH"],
+    correct: "POST",
+    explanation: "POST se usa para crear recursos."
+  },
+  {
+    id: "q3",
+    type: "choice",
+    prompt: "3) Si falta email en un POST /users, cual status deberias responder?",
+    options: ["200", "400", "500"],
+    correct: "400",
+    explanation: "400 indica solicitud invalida por datos incompletos."
+  },
+  {
+    id: "q4",
+    type: "choice",
+    prompt: "4) Si el recurso no existe (ej: usuario 99), cual status aplica?",
+    options: ["201", "404", "503"],
+    correct: "404",
+    explanation: "404 se usa cuando recurso o ruta no existe."
+  },
+  {
+    id: "q5",
+    type: "text",
+    prompt: "5) Explica diferencia entre query params y body.",
+    groups: [["query", "param", "url"], ["body", "json", "payload"]],
+    hint: "Menciona URL para query params y cuerpo JSON para body."
+  },
+  {
+    id: "q6",
+    type: "text",
+    prompt: "6) Escribe por que se usan consultas preparadas en SQL.",
+    groups: [["prepare", "preparad"], ["inyeccion", "injection", "seguridad"]],
+    hint: "Debes mencionar seguridad y SQL injection."
+  },
+  {
+    id: "q7",
+    type: "text",
+    prompt: "7) Escribe un curl basico para POST /users con JSON.",
+    groups: [["curl"], ["post", "-x post"], ["content-type", "application/json"]],
+    hint: "Incluye curl, POST y header application/json."
+  },
+  {
+    id: "q8",
+    type: "text",
+    prompt: "8) Escribe una consulta para valor total de inventario.",
+    groups: [["sum"], ["price"], ["stock"]],
+    hint: "Formula esperada: SUM(price * stock)."
+  }
+];
+
+let activeTab = "overview";
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      proceduresDone: parsed.proceduresDone || {},
+      labAnswers: parsed.labAnswers || {},
+      labFeedback: parsed.labFeedback || {},
+      labLastScore: typeof parsed.labLastScore === "number" ? parsed.labLastScore : null,
+      labLastAt: parsed.labLastAt || null
+    };
+  } catch (error) {
+    return {
+      proceduresDone: {},
+      labAnswers: {},
+      labFeedback: {},
+      labLastScore: null,
+      labLastAt: null
+    };
+  }
+}
+
+function saveState() {
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function normalizeText(text) {
+  return (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapeHtml(text) {
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function stagger(i) {
+  return `animation-delay:${i * 0.05}s`;
+}
+
+function getProceduresTotal() {
+  return data.procedures.length;
+}
+
+function getProceduresDone() {
+  return Object.values(state.proceduresDone).filter(Boolean).length;
+}
+
+function getProcedureRate() {
+  const total = getProceduresTotal();
+  return total === 0 ? 0 : Math.round((getProceduresDone() / total) * 100);
+}
+
+function getGlobalProgress() {
+  const proc = getProcedureRate();
+  const lab = typeof state.labLastScore === "number" ? state.labLastScore : 0;
+  return Math.round((proc * 0.55) + (lab * 0.45));
+}
+
+function isTabEmpty(tabId) {
+  if (tabId === "procedures") return getProceduresDone() === 0;
+  if (tabId === "kpis") return typeof state.labLastScore !== "number";
+  const key = tabs.find(t => t.id === tabId)?.dataKey;
+  if (!key) return true;
+  const d = data[key];
+  if (Array.isArray(d)) return d.length === 0;
+  if (typeof d === "object" && d !== null) {
+    return Object.values(d).every(v => Array.isArray(v) ? v.length === 0 : !v);
+  }
+  return !d;
+}
+
+function renderPlaceholder(tabId) {
+  const p = placeholders[tabId];
+  return `
+    <div class="placeholder">
+      <div class="placeholder-icon">${p.icon}</div>
+      <div class="placeholder-title">${p.title}</div>
+      <div class="placeholder-hint">${p.hint}</div>
+      <div class="placeholder-instruction">${p.instruction}</div>
+    </div>`;
+}
+
+function renderTags(tags) {
+  return tags.map(t => `<span class="tag tag-${t}">${escapeHtml(t)}</span>`).join("");
+}
+
+function renderHeader() {
+  const progress = getGlobalProgress();
+  document.getElementById("header-area").innerHTML = `
+    <div class="header-meta">RCursor - Modo Instructor (Molde Departamental)</div>
+    <div class="header-title">${data.meta.departamento}</div>
+    <div class="header-sub">${data.meta.alcance}</div>
+    <div class="header-badges">
+      <span class="badge badge-tipo">${data.meta.tipo_proceso}</span>
+      <span class="badge badge-version">avance ${progress}%</span>
+      <span class="badge badge-fecha">${data.meta.fecha}</span>
+      <span class="badge badge-notacion">${data.meta.notacion}</span>
+    </div>`;
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById("tabs");
+  tabsEl.innerHTML = tabs.map(t => {
+    const empty = isTabEmpty(t.id);
+    const active = t.id === activeTab ? "active" : "";
+    return `<div class="tab ${active} ${empty ? "empty" : "filled"}" data-tab="${t.id}" onclick="switchTab('${t.id}')">${t.icon} ${t.label}</div>`;
+  }).join("");
+}
+
+function renderOverview() {
+  if (data.overview.length === 0) return renderPlaceholder("overview");
+  return data.overview.map(section => `
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-title">${escapeHtml(section.title)}</div>
+        <div class="section-toggle">+</div>
+      </div>
+      <div class="section-body">
+        ${section.items.map((item, i) => `
+          <div class="item" style="${stagger(i)}">
+            <div class="item-dot" style="background:var(--accent-cyan)"></div>
+            <div class="item-text">
+              <strong>${escapeHtml(item.text)}</strong>
+              ${item.sub ? `<div class="item-sub">${escapeHtml(item.sub)}</div>` : ""}
+              ${item.tags ? renderTags(item.tags) : ""}
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`).join("");
+}
+
+function renderFlow() {
+  if (data.flow.length === 0) return renderPlaceholder("flow");
+  return `<div style="padding:6px 0">${data.flow.map((step, i) => `
+    <div class="flow-step" style="${stagger(i)}">
+      <div class="flow-num" style="background:${step.color_bg || "#0a1a2a"};color:${step.color_text || "var(--accent-cyan)"}">${escapeHtml(step.num)}</div>
+      <div class="flow-content">
+        <div class="flow-title">${escapeHtml(step.title)}</div>
+        <div class="flow-desc">${escapeHtml(step.desc)}</div>
+        ${step.responsible ? `<div style="margin-top:5px;font-size:11px;color:var(--accent-purple)">→ ${escapeHtml(step.responsible)}</div>` : ""}
+        ${step.branches ? step.branches.map(branch => `
+          <div class="flow-branch">
+            <div class="flow-branch-label">${escapeHtml(branch.label)}</div>
+            ${escapeHtml(branch.desc)}
+          </div>`).join("") : ""}
+      </div>
+    </div>`).join("")}</div>`;
+}
+
+function renderCorrelations() {
+  if (data.correlations.length === 0) return renderPlaceholder("correlations");
+  const arrows = { directa: "→", inversa: "←", bidireccional: "↔" };
+  return data.correlations.map((corr, i) => `
+    <div class="correlation" style="${stagger(i)}">
+      <div class="corr-node">
+        <strong>${escapeHtml(corr.from)}</strong><br>${escapeHtml(corr.from_detail || "")}
+      </div>
+      <div class="corr-arrow">${arrows[corr.type] || "→"}</div>
+      <div class="corr-node">
+        <strong>${escapeHtml(corr.to)}</strong><br>${escapeHtml(corr.to_detail || "")}
+      </div>
+    </div>
+    ${corr.impact ? `<div class="corr-impact">⚡ ${escapeHtml(corr.impact)}</div>` : ""}`).join("");
+}
+
+function renderBottlenecks() {
+  if (data.bottlenecks.length === 0) return renderPlaceholder("bottlenecks");
+  return data.bottlenecks.map((item, i) => `
+    <div class="card" style="${stagger(i)}">
+      <div class="severity severity-${escapeHtml(item.severity)}">${escapeHtml(item.severity)}</div>
+      <div class="card-title">${escapeHtml(item.title)}</div>
+      <div class="card-desc">${escapeHtml(item.desc)}</div>
+      ${item.impact ? `<div class="card-meta">${escapeHtml(item.impact)}</div>` : ""}
+    </div>`).join("");
+}
+
+function renderOpportunities() {
+  if (data.opportunities.length === 0) return renderPlaceholder("opportunities");
+  return data.opportunities.map((item, i) => `
+    <div class="card" style="${stagger(i)}">
+      <div class="priority priority-${escapeHtml(item.priority)}">${escapeHtml(item.priority.replace("-", " "))}</div>
+      <div class="card-title">${escapeHtml(item.title)}</div>
+      <div class="card-desc">${escapeHtml(item.desc)}</div>
+      ${item.benefit ? `<div class="card-meta" style="color:var(--accent-green)">→ ${escapeHtml(item.benefit)}</div>` : ""}
+    </div>`).join("");
+}
+
+function renderProcedures() {
+  if (data.procedures.length === 0) return renderPlaceholder("procedures");
+  const done = getProceduresDone();
+  const total = getProceduresTotal();
+  const pct = getProcedureRate();
+  return `
+    <div class="proc-progress">
+      Progreso de ejecucion: <strong style="color:var(--accent-green)">${done}/${total}</strong> procedimientos marcados (${pct}%).
+      <div style="margin-top:5px;color:var(--text-muted)">Tip: ejecuta cada paso real en tu entorno y luego marca completado.</div>
+    </div>
+    ${data.procedures.map(proc => `
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title"><span style="color:var(--accent-cyan)">${escapeHtml(proc.code)}</span> - ${escapeHtml(proc.name)}</div>
+          <div class="section-toggle">+</div>
+        </div>
+        <div class="section-body">
+          ${proc.sipoc ? `
+            <div class="sipoc">
+              <div class="sipoc-col"><div class="sipoc-label">Suppliers</div><div class="sipoc-items">${proc.sipoc.suppliers.map(escapeHtml).join("<br>")}</div></div>
+              <div class="sipoc-col"><div class="sipoc-label">Inputs</div><div class="sipoc-items">${proc.sipoc.inputs.map(escapeHtml).join("<br>")}</div></div>
+              <div class="sipoc-col"><div class="sipoc-label">Process</div><div class="sipoc-items">${escapeHtml(proc.sipoc.process)}</div></div>
+              <div class="sipoc-col"><div class="sipoc-label">Outputs</div><div class="sipoc-items">${proc.sipoc.outputs.map(escapeHtml).join("<br>")}</div></div>
+              <div class="sipoc-col"><div class="sipoc-label">Customers</div><div class="sipoc-items">${proc.sipoc.customers.map(escapeHtml).join("<br>")}</div></div>
+            </div>` : ""}
+          <table class="proc-table">
+            <thead><tr><th>#</th><th>Responsable</th><th>Accion</th><th>Documento</th></tr></thead>
+            <tbody>
+              ${proc.steps.map(step => `
+                <tr>
+                  <td style="font-family:var(--font-mono);color:var(--accent-cyan)">${escapeHtml(step.num)}</td>
+                  <td style="color:var(--text-primary)">${escapeHtml(step.responsible)}</td>
+                  <td>${step.action}</td>
+                  <td style="font-family:var(--font-mono);font-size:10px;color:var(--accent-purple)">${escapeHtml(step.doc || "-")}</td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+          <label class="proc-check">
+            <input type="checkbox" ${state.proceduresDone[proc.code] ? "checked" : ""} onchange="toggleProcedure('${proc.code}', this.checked)">
+            Marcar ${escapeHtml(proc.code)} como completado
+          </label>
+        </div>
+      </div>`).join("")}`;
+}
+
+function renderStructure() {
+  if (data.structure.length === 0) return renderPlaceholder("structure");
+  return data.structure.map((role, i) => `
+    <div class="org-role" style="${stagger(i)}">
+      <div class="org-avatar">${escapeHtml(role.initials)}</div>
+      <div>
+        <div class="org-name">${escapeHtml(role.name)}</div>
+        <div class="org-title">${escapeHtml(role.title)}</div>
+        ${role.reports_to ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Reporta a: ${escapeHtml(role.reports_to)}</div>` : ""}
+        <div class="org-functions">${escapeHtml(role.functions)}</div>
+        ${role.auth_limit ? `<div class="org-auth">Limite: ${escapeHtml(role.auth_limit)}</div>` : ""}
+      </div>
+    </div>`).join("");
+}
+
+function renderDependencies() {
+  const inputs = data.dependencies.inputs || [];
+  const outputs = data.dependencies.outputs || [];
+  if (inputs.length === 0 && outputs.length === 0) return renderPlaceholder("dependencies");
+  let html = "";
+  if (inputs.length > 0) {
+    html += `<div class="dep-group-title inputs">⬇ Lo que necesitas para practicar bien</div>`;
+    html += inputs.map((dep, i) => `
+      <div class="dep-item" style="${stagger(i)}">
+        <div class="dep-dept">${escapeHtml(dep.dept)}</div>
+        <div class="dep-what">${escapeHtml(dep.what)}</div>
+        <div class="dep-channel">${escapeHtml(dep.channel)}</div>
+      </div>`).join("");
+  }
+  if (outputs.length > 0) {
+    html += `<div class="dep-group-title outputs">⬆ Lo que te llevas al finalizar</div>`;
+    html += outputs.map((dep, i) => `
+      <div class="dep-item" style="${stagger(i)}">
+        <div class="dep-dept">${escapeHtml(dep.dept)}</div>
+        <div class="dep-what">${escapeHtml(dep.what)}</div>
+        <div class="dep-channel">${escapeHtml(dep.channel)}</div>
+      </div>`).join("");
+  }
+  return html;
+}
+
+function renderLabQuestion(question, index) {
+  const savedAnswer = state.labAnswers[question.id] || "";
+  const feedback = state.labFeedback[question.id];
+  const resultHtml = feedback
+    ? `<div class="lab-result ${feedback.status}">${escapeHtml(feedback.message)}</div>`
+    : `<div class="lab-result" style="color:var(--text-muted)">Sin evaluar aun.</div>`;
+
+  if (question.type === "choice") {
+    return `
+      <div class="lab-question">
+        <h4>${escapeHtml(question.prompt)}</h4>
+        ${question.options.map(opt => `
+          <label class="lab-option">
+            <input type="radio" name="${question.id}" value="${escapeHtml(opt)}"
+              ${savedAnswer === opt ? "checked" : ""}
+              onclick="setLabChoice('${question.id}', '${escapeHtml(opt)}')">
+            ${escapeHtml(opt)}
+          </label>`).join("")}
+        ${resultHtml}
+      </div>`;
+  }
+
+  return `
+    <div class="lab-question">
+      <h4>${escapeHtml(question.prompt)}</h4>
+      <textarea class="lab-text" placeholder="Escribe tu respuesta aqui..."
+        oninput="setLabText('${question.id}', this.value)">${escapeHtml(savedAnswer)}</textarea>
+      ${resultHtml}
+    </div>`;
+}
+
+function renderKPIs() {
+  const procDone = getProceduresDone();
+  const procTotal = getProceduresTotal();
+  const procRate = getProcedureRate();
+  const labScore = typeof state.labLastScore === "number" ? `${state.labLastScore}%` : "sin calificar";
+  const practiceLabel = state.labLastAt ? `Ultima revision: ${escapeHtml(state.labLastAt)}` : "Todavia no has evaluado este laboratorio.";
+
+  return `
+    <div class="lab-head">
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--accent-cyan);margin-bottom:4px">Laboratorio guiado</div>
+      <div style="font-size:14px;color:var(--text-secondary);line-height:1.5">
+        Aqui no vas a ciegas: primero leiste teoria en tabs anteriores, ahora verificas comprension.
+        Puedes intentar varias veces hasta consolidar conceptos.
+      </div>
+      <div class="lab-grid">
+        <div class="lab-chip">
+          <div class="lab-chip-name">${escapeHtml(data.kpis[0].name)}</div>
+          <div class="lab-chip-value">${procDone}/${procTotal} (${procRate}%)</div>
+        </div>
+        <div class="lab-chip">
+          <div class="lab-chip-name">${escapeHtml(data.kpis[1].name)}</div>
+          <div class="lab-chip-value">${labScore}</div>
+        </div>
+        <div class="lab-chip">
+          <div class="lab-chip-name">${escapeHtml(data.kpis[2].name)}</div>
+          <div class="lab-chip-value">${practiceLabel}</div>
+        </div>
+      </div>
+      <div class="lab-score">Meta sugerida: 80%+ en laboratorio y 100% de procedimientos marcados.</div>
+    </div>
+    ${labQuestions.map(renderLabQuestion).join("")}
+    <div class="lab-actions">
+      <button class="btn btn-primary" onclick="evaluateLab()">Calificar ahora</button>
+      <button class="btn" onclick="resetLab()">Reiniciar respuestas del laboratorio</button>
+    </div>`;
+}
+
+function renderPolicies() {
+  if (data.policies.length === 0) return renderPlaceholder("policies");
+  return data.policies.map((policy, i) => `
+    <div class="policy" style="${stagger(i)}">
+      <div class="policy-rule">${escapeHtml(policy.rule)}</div>
+      <div class="policy-detail">${escapeHtml(policy.detail)}</div>
+      ${policy.exception ? `<div class="policy-exception">Excepcion: ${escapeHtml(policy.exception)}</div>` : ""}
+    </div>`).join("");
+}
+
+const renderers = {
+  overview: renderOverview,
+  flow: renderFlow,
+  correlations: renderCorrelations,
+  bottlenecks: renderBottlenecks,
+  opportunities: renderOpportunities,
+  procedures: renderProcedures,
+  structure: renderStructure,
+  dependencies: renderDependencies,
+  kpis: renderKPIs,
+  policies: renderPolicies
+};
+
+function switchTab(tabId) {
+  activeTab = tabId;
+  renderHeader();
+  renderTabs();
+  document.getElementById("content").innerHTML = renderers[tabId]();
+}
+
+function toggleSection(element) {
+  element.parentElement.classList.toggle("open");
+}
+
+function toggleProcedure(code, checked) {
+  state.proceduresDone[code] = checked;
+  saveState();
+  switchTab(activeTab);
+}
+
+function setLabChoice(questionId, value) {
+  state.labAnswers[questionId] = value;
+  saveState();
+}
+
+function setLabText(questionId, value) {
+  state.labAnswers[questionId] = value;
+  saveState();
+}
+
+function evaluateTextQuestion(question, answer) {
+  const normalized = normalizeText(answer);
+  if (normalized.length < 4) {
+    return { score: 0, status: "bad", message: "Respuesta muy corta. Intenta explicar la idea principal." };
+  }
+
+  let hits = 0;
+  question.groups.forEach(group => {
+    const ok = group.some(word => normalized.includes(normalizeText(word)));
+    if (ok) hits += 1;
+  });
+  const ratio = hits / question.groups.length;
+  if (ratio === 1) return { score: 1, status: "ok", message: "Muy bien. Concepto correcto." };
+  if (ratio >= 0.67) return { score: 0.6, status: "warn", message: `Vas bien, falta detalle. ${question.hint}` };
+  return { score: 0.2, status: "bad", message: `Incompleto. ${question.hint}` };
+}
+
+function evaluateLab() {
+  let sum = 0;
+  const max = labQuestions.length;
+  const feedback = {};
+
+  labQuestions.forEach(question => {
+    const answer = state.labAnswers[question.id] || "";
+    if (question.type === "choice") {
+      if (!answer) {
+        feedback[question.id] = { score: 0, status: "bad", message: "Debes seleccionar una opcion." };
+      } else if (answer === question.correct) {
+        feedback[question.id] = { score: 1, status: "ok", message: "Correcto. " + question.explanation };
+      } else {
+        feedback[question.id] = { score: 0, status: "bad", message: `Incorrecto. Respuesta esperada: ${question.correct}.` };
       }
+    } else {
+      feedback[question.id] = evaluateTextQuestion(question, answer);
+    }
+    sum += feedback[question.id].score;
+  });
 
-      function writeResult(questionEl, status, msg) {
-        const box = questionEl.querySelector(".result");
-        if (!box) return;
-        box.className = "result";
-        if (status === "ok") box.classList.add("ok");
-        if (status === "warn") box.classList.add("warn");
-        if (status === "bad") box.classList.add("bad");
-        box.textContent = msg;
-      }
+  const pct = Math.round((sum / max) * 100);
+  state.labFeedback = feedback;
+  state.labLastScore = pct;
+  state.labLastAt = new Date().toLocaleString();
+  saveState();
+  switchTab("kpis");
+}
 
-      function evalTextGroups(answer, groupsStr, hint) {
-        const text = normalizeText(answer);
-        const groups = (groupsStr || "")
-          .split(";")
-          .map((g) => g.split("|").map((w) => normalizeText(w)).filter(Boolean))
-          .filter((g) => g.length > 0);
+function resetLab() {
+  const ok = window.confirm("Esto borrara tus respuestas del laboratorio. Continuar?");
+  if (!ok) return;
+  state.labAnswers = {};
+  state.labFeedback = {};
+  state.labLastScore = null;
+  state.labLastAt = null;
+  saveState();
+  switchTab("kpis");
+}
 
-        if (text.length < 4) {
-          return { status: "bad", score: 0, msg: "Respuesta vacia o muy corta." };
-        }
+document.addEventListener("DOMContentLoaded", () => {
+  switchTab(activeTab);
+});
+</script>
 
-        let hits = 0;
-        groups.forEach((alts) => {
-          const found = alts.some((word) => text.includes(word));
-          if (found) hits += 1;
-        });
-
-        const pct = groups.length === 0 ? 0 : hits / groups.length;
-        if (pct >= 1) return { status: "ok", score: 1, msg: "Muy bien. Idea correcta." };
-        if (pct >= 0.67) return { status: "warn", score: 0.6, msg: `Casi. Falta detalle. ${hint || ""}` };
-        return { status: "bad", score: 0.2, msg: `Incompleto. ${hint || ""}` };
-      }
-
-      function evalRegex(answer, pattern, hint) {
-        const text = normalizeText(answer);
-        if (!text) return { status: "bad", score: 0, msg: "Escribe una respuesta." };
-        try {
-          const re = new RegExp(pattern, "i");
-          if (re.test(text)) {
-            return { status: "ok", score: 1, msg: "Correcto." };
-          }
-          return { status: "warn", score: 0.5, msg: `Bien intento, ajusta formato. ${hint || ""}` };
-        } catch (err) {
-          return { status: "bad", score: 0, msg: "Error interno en validador regex." };
-        }
-      }
-
-      function evaluateQuestion(questionEl) {
-        const type = questionEl.dataset.type;
-        const correct = questionEl.dataset.correct;
-        const hint = questionEl.dataset.hint || "";
-        const answer = getAnswer(questionEl);
-
-        if (type === "choice" || type === "select") {
-          if (!answer) {
-            writeResult(questionEl, "bad", "Debes elegir una opcion.");
-            return 0;
-          }
-          if (answer === correct) {
-            writeResult(questionEl, "ok", "Correcto.");
-            return 1;
-          }
-          writeResult(questionEl, "bad", `Incorrecto. Respuesta esperada: ${correct}`);
-          return 0;
-        }
-
-        if (type === "text_groups") {
-          const out = evalTextGroups(answer, questionEl.dataset.groups, hint);
-          writeResult(questionEl, out.status, out.msg);
-          return out.score;
-        }
-
-        if (type === "regex") {
-          const out = evalRegex(answer, questionEl.dataset.regex || "", hint);
-          writeResult(questionEl, out.status, out.msg);
-          return out.score;
-        }
-
-        writeResult(questionEl, "bad", "Tipo de pregunta no soportado.");
-        return 0;
-      }
-
-      function updateModuleBadge(moduleId, pct) {
-        const badge = document.getElementById(`badge-${moduleId}`);
-        const scoreLabel = document.getElementById(`score-${moduleId}`);
-        if (!badge || !scoreLabel) return;
-
-        if (pct >= 80) {
-          badge.textContent = "Aprobado";
-          badge.style.color = "#88ffcf";
-          scoreLabel.textContent = `Puntaje: ${pct}% (aprobado)`;
-        } else if (pct >= 60) {
-          badge.textContent = "En progreso";
-          badge.style.color = "#ffd982";
-          scoreLabel.textContent = `Puntaje: ${pct}% (casi)`;
-        } else {
-          badge.textContent = "Reforzar";
-          badge.style.color = "#ff9a9a";
-          scoreLabel.textContent = `Puntaje: ${pct}% (refuerza modulo)`;
-        }
-      }
-
-      function recalcGlobal() {
-        const known = moduleIds
-          .map((id) => moduleScores[id])
-          .filter((v) => typeof v === "number");
-        const avg = known.length
-          ? Math.round(known.reduce((a, b) => a + b, 0) / known.length)
-          : 0;
-        const bar = document.getElementById("global-progress");
-        const label = document.getElementById("global-label");
-        bar.style.width = `${avg}%`;
-        label.textContent = `Progreso total: ${avg}%`;
-      }
-
-      function evaluateModule(moduleId) {
-        const items = document.querySelectorAll(`.question[data-module="${moduleId}"]`);
-        if (!items.length) return;
-
-        let total = 0;
-        let points = 0;
-        items.forEach((item) => {
-          total += 1;
-          points += evaluateQuestion(item);
-        });
-
-        const pct = Math.round((points / total) * 100);
-        moduleScores[moduleId] = pct;
-        updateModuleBadge(moduleId, pct);
-        recalcGlobal();
-      }
-
-      function evaluateAll() {
-        moduleIds.forEach((id) => evaluateModule(id));
-      }
-
-      function buildReport() {
-        const lines = [];
-        lines.push("Reporte bootcamp backend");
-        lines.push(`Fecha: ${new Date().toLocaleString()}`);
-        lines.push("------------------------------");
-        moduleIds.forEach((id) => {
-          const score = moduleScores[id];
-          lines.push(`${id.toUpperCase()}: ${typeof score === "number" ? score + "%" : "sin revisar"}`);
-        });
-        lines.push("------------------------------");
-        const label = document.getElementById("global-label");
-        lines.push(label ? label.textContent : "Progreso total: n/a");
-        lines.push("Siguiente paso: refuerza modulos < 80% y vuelve a revisar.");
-        return lines.join("\n");
-      }
-
-      function bindButtons() {
-        document.querySelectorAll("button[data-eval]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            evaluateModule(btn.dataset.eval);
-          });
-        });
-
-        const evalAllBtn = document.getElementById("eval-all");
-        evalAllBtn.addEventListener("click", evaluateAll);
-
-        const copyBtn = document.getElementById("copy-progress");
-        const reportBox = document.getElementById("report-box");
-        copyBtn.addEventListener("click", async () => {
-          const report = buildReport();
-          reportBox.value = report;
-          try {
-            await navigator.clipboard.writeText(report);
-            reportBox.value += "\n\n(Reporte copiado al portapapeles)";
-          } catch (err) {
-            reportBox.value += "\n\n(No se pudo copiar automatico. Copia manual.)";
-          }
-        });
-
-        const clearBtn = document.getElementById("clear-data");
-        clearBtn.addEventListener("click", () => {
-          const ok = window.confirm("Esto borrara respuestas guardadas. Continuar?");
-          if (!ok) return;
-          localStorage.removeItem(storageKey);
-          window.location.reload();
-        });
-      }
-
-      bindPersistence();
-      bindButtons();
-      recalcGlobal();
-    })();
-  </script>
 </body>
 </html>
