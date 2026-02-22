@@ -12,6 +12,8 @@ interface TaskDao {
         """
         SELECT * FROM tasks
         ORDER BY
+            completed ASC,
+            priority DESC,
             CASE WHEN dueAtEpochMillis IS NULL THEN 1 ELSE 0 END,
             dueAtEpochMillis ASC,
             createdAtEpochMillis DESC
@@ -20,7 +22,7 @@ interface TaskDao {
     fun observeAll(): Flow<List<TaskEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(task: TaskEntity)
+    suspend fun insert(task: TaskEntity): Long
 
     @Query("UPDATE tasks SET completed = :completed WHERE id = :taskId")
     suspend fun updateCompleted(taskId: Long, completed: Boolean)

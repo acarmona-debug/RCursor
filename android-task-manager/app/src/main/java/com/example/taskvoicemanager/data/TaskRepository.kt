@@ -9,12 +9,16 @@ class TaskRepository(
 
     suspend fun addTask(
         description: String,
-        dueAtEpochMillis: Long?
-    ) {
-        taskDao.insert(
+        dueAtEpochMillis: Long?,
+        priority: Int,
+        reminderEnabled: Boolean
+    ): Long {
+        return taskDao.insert(
             TaskEntity(
                 description = description,
-                dueAtEpochMillis = dueAtEpochMillis
+                dueAtEpochMillis = dueAtEpochMillis,
+                priority = priority,
+                reminderEnabled = reminderEnabled
             )
         )
     }
