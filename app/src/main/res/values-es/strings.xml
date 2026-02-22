@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OyTask</string>
+    <string name="app_greeting">Gestiona tus actividades</string>
+
+    <string name="new_task">Nueva tarea</string>
+    <string name="edit_task">Editar tarea</string>
+    <string name="task_title_hint">¿Qué necesitas hacer?</string>
+    <string name="task_description_hint">Descripción (opcional)</string>
+    <string name="due_date">Fecha límite</string>
+    <string name="select_date">Elegir fecha</string>
+    <string name="no_date">Sin fecha</string>
+    <string name="clear_date">Quitar fecha</string>
+    <string name="priority">Prioridad</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="error_empty_title">Escribe un título para la tarea</string>
+
+    <string name="filter_all">Todas</string>
+    <string name="filter_pending">Pendientes</string>
+    <string name="filter_today">Hoy</string>
+    <string name="filter_overdue">Vencidas</string>
+    <string name="filter_week">Esta semana</string>
+    <string name="filter_completed">Completadas</string>
+
+    <string name="add_task">Agregar tarea</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
+    <string name="mark_complete">Marcar como completada</string>
+    <string name="mark_pending">Marcar como pendiente</string>
+    <string name="undo">Deshacer</string>
+
+    <string name="task_created">Tarea creada</string>
+    <string name="task_updated">Tarea actualizada</string>
+    <string name="task_deleted">Tarea eliminada</string>
+    <string name="task_created_voice">Tarea creada por voz</string>
+
+    <string name="voice_input">Entrada por voz</string>
+    <string name="listening">Escuchando…</string>
+    <string name="listening_active">Te escucho…</string>
+    <string name="processing">Procesando…</string>
+    <string name="voice_hint">Di algo como:\n\"Tengo que entregar el reporte para el viernes\"</string>
+    <string name="voice_not_available">Reconocimiento de voz no disponible</string>
+    <string name="voice_no_match">No entendí. Intenta de nuevo.</string>
+    <string name="voice_network_error">Error de red. Verifica tu conexión.</string>
+    <string name="voice_error">Error de reconocimiento de voz</string>
+    <string name="mic_permission_denied">Se necesita permiso del micrófono para entrada por voz</string>
+
+    <string name="search">Buscar</string>
+    <string name="search_hint">Buscar tareas…</string>
+    <string name="clear_search">Limpiar búsqueda</string>
+
+    <string name="empty_title">Sin tareas por aquí</string>
+    <string name="empty_subtitle">Toca + para crear una tarea o usa el micrófono para dictarla</string>
+
+    <plurals name="pending_tasks_count">
+        <item quantity="one">%d tarea pendiente</item>
+        <item quantity="other">%d tareas pendientes</item>
+    </plurals>
+    <plurals name="overdue_tasks_count">
+        <item quantity="one">%d vencida</item>
+        <item quantity="other">%d vencidas</item>
+    </plurals>
+</resources>
