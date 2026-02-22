@@ -151,6 +151,8 @@ class ProcurementApp:
                 
                 info = cat.get(clave_str, {})
                 costo = info.get("costo", 0) or 0
+                req_desc = str(row[2]).strip() if len(row) > 2 and row[2] else ""
+                req_unit = str(row[3]).strip() if len(row) > 3 and row[3] else ""
                 
                 # Ensure we have a description and unit
                 final_desc = info.get("descripcion") or req_desc
