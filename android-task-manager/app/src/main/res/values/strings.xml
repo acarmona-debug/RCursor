@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Task Voice Manager</string>
+    <string name="new_task_label">Nueva actividad</string>
+    <string name="new_task_placeholder">Ej: entregar informe de ventas</string>
+    <string name="add_task">Agregar</string>
+    <string name="voice_input">Oye Task</string>
+    <string name="empty_state">Todavia no tienes actividades.</string>
+    <string name="due_date_prefix">Para:</string>
+    <string name="no_due_date">Sin fecha limite</string>
+    <string name="mark_completed">Marcar completada</string>
+    <string name="remove_task">Eliminar actividad</string>
+    <string name="recognized_text">Texto reconocido:</string>
+    <string name="voice_help">
+        Di algo como: tengo que hacer el informe para 25/02/2026
+    </string>
+    <string name="speech_not_available">No hay servicio de voz disponible.</string>
+    <string name="task_added">Actividad guardada</string>
+</resources>
