@@ -1,5 +1,12 @@
 package com.oyetask.ui
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
@@ -37,14 +45,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oyetask.data.TaskEntity
 import com.oyetask.util.Dates
+import com.oyetask.voice.VoiceCommandParser
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +68,8 @@ fun TaskScreen(
     val tasks by viewModel.tasks.collectAsStateWithLifecycle()
     val filter by viewModel.filter.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel) {
         viewModel.snackbar.collectLatest { snackbarHostState.showSnackbar(it) }
@@ -65,6 +80,46 @@ fun TaskScreen(
     var showDatePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
+
+    val speechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val spoken = result.data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+            ?.trim()
+            .orEmpty()
+        if (spoken.isBlank()) return@rememberLauncherForActivityResult
+
+        val parsed = VoiceCommandParser.parse(spoken)
+        if (parsed != null) {
+            viewModel.addTask(parsed.title, parsed.dueDateEpochDay)
+            scope.launch { snackbarHostState.showSnackbar("Agregado por voz.") }
+        } else {
+            newTitle = spoken
+            scope.launch { snackbarHostState.showSnackbar("No entendí la fecha; dejé el texto para que lo ajustes.") }
+        }
+    }
+
+    fun launchSpeech() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Di: Oye task, tengo que… para…")
+        }
+        speechLauncher.launch(intent)
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            launchSpeech()
+        } else {
+            scope.launch { snackbarHostState.showSnackbar("Necesito permiso de micrófono para dictado.") }
+        }
+    }
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -105,6 +160,19 @@ fun TaskScreen(
                         contentDescription = null,
                         modifier = Modifier.padding(start = 16.dp),
                     )
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            val granted = ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.RECORD_AUDIO,
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (granted) launchSpeech() else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        },
+                    ) {
+                        Icon(Icons.Default.Mic, contentDescription = "Dictar actividad")
+                    }
                 },
             )
         },
