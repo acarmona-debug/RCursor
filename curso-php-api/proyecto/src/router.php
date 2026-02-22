@@ -44,7 +44,7 @@ function route(string $method, string $path, PDO $db): void
         }
         if ($method === 'DELETE') {
             todos_delete($db, $id);
-            http_response_code(204);
+            no_content(204);
             return;
         }
         abort_json(405, 'Method Not Allowed');

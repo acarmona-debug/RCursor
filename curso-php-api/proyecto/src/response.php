@@ -59,3 +59,9 @@ function abort_json(int $status, string $message, ?array $details = null): never
     throw new HttpException($status, $message, $details);
 }
 
+function no_content(int $status = 204): void
+{
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+}
+
