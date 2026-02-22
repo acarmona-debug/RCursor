@@ -29,6 +29,27 @@ Desde la raiz del repo:
 cd aprendizaje-backend
 ```
 
+## Modo movil (sin volver al chat en cada pregunta)
+
+Tienes una version interactiva con autoevaluacion en:
+
+- `web/curso-interactivo.html`
+
+Opciones para abrirla:
+
+1. Abrir el archivo directo en el navegador del celular.
+2. O servirlo desde tu PC y entrar desde el celular:
+
+```bash
+python3 -m http.server 8080 --directory web
+```
+
+Luego abre en el celular:
+
+- `http://<IP_DE_TU_PC>:8080/curso-interactivo.html`
+
+La pagina guarda avance en el navegador (localStorage), corrige respuestas y te muestra feedback inmediato.
+
 ## Estructura del curso
 
 1. **M0 - Fundamentos web y HTTP**
@@ -43,6 +64,8 @@ cd aprendizaje-backend
    - Archivo: `ejercicios/api/index.php`
 6. **M5 - SQL de practica**
    - Archivo: `ejercicios/04_sql_practica.sql`
+7. **Modo interactivo para celular**
+   - Archivo: `web/curso-interactivo.html`
 
 ## Ruta sugerida (sin saltos)
 

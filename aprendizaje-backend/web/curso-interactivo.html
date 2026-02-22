@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bootcamp Backend Interactivo</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a33;
+      --card: #182345;
+      --txt: #e8ecff;
+      --muted: #a7b0d6;
+      --ok: #32d296;
+      --warn: #f5c542;
+      --bad: #ff6b6b;
+      --accent: #6ea8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #090e1d, #111a35);
+      color: var(--txt);
+      line-height: 1.45;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .hero, .module, .panel {
+      background: rgba(18, 26, 51, 0.95);
+      border: 1px solid #24325f;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 1.3rem;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 0.92rem; }
+
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .nav a {
+      text-align: center;
+      text-decoration: none;
+      background: #1d2a55;
+      color: #dce6ff;
+      border: 1px solid #2f427f;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .question {
+      background: var(--card);
+      border: 1px solid #2a3b71;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .question h4 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    label {
+      display: block;
+      margin: 5px 0;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #334985;
+      background: #0f1733;
+      color: var(--txt);
+      padding: 9px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 1px solid #3c56a0;
+      background: #28408a;
+      color: #f4f7ff;
+      border-radius: 9px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    button.secondary {
+      background: #1d2c59;
+    }
+
+    .result {
+      margin-top: 7px;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9rem;
+      border: 1px dashed #3a4d8f;
+      background: #111a35;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    .module-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid #3a4d8f;
+      background: #101936;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #2f427d;
+      background: #0f1731;
+      margin-top: 8px;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4e7cff, #38d1a6);
+      transition: width 0.2s ease;
+    }
+
+    details {
+      margin-top: 8px;
+      background: #0f1733;
+      border: 1px solid #324885;
+      border-radius: 8px;
+      padding: 7px;
+    }
+
+    summary { cursor: pointer; }
+
+    code {
+      background: #0f1730;
+      border: 1px solid #32457c;
+      border-radius: 6px;
+      padding: 1px 5px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Bootcamp Backend Interactivo (movil)</h1>
+      <p class="muted small">
+        Este modo te corrige al instante (sin volver al chat en cada pregunta), guarda tu avance en tu celular y te muestra pistas.
+      </p>
+      <p class="small">
+        Nota tecnica: un chat IA en vivo no se puede incrustar aqui sin una API externa y token.
+        Mientras tanto, este "instructor automatico" evalua tus respuestas y te guia paso a paso.
+      </p>
+      <div class="nav">
+        <a href="#m0">M0 HTTP</a>
+        <a href="#m1">M1 PHP basico</a>
+        <a href="#m2">M2 Funciones</a>
+        <a href="#m3">M3 SQLite/PDO</a>
+        <a href="#m4">M4 Endpoints</a>
+        <a href="#m5">M5 SQL</a>
+      </div>
+      <div class="progress" aria-label="Progreso total">
+        <div id="global-progress"></div>
+      </div>
+      <p id="global-label" class="small muted">Progreso total: 0%</p>
+    </section>
+
+    <section id="m0" class="module">
+      <div class="module-head">
+        <h2>M0 - Fundamentos web y HTTP</h2>
+        <span id="badge-m0" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: request/response, metodos HTTP, codigos de estado.</p>
+
+      <article class="question" data-module="m0" data-type="choice" data-id="m0_q1" data-correct="GET">
+        <h4>1) Para listar usuarios, que metodo usas?</h4>
+        <label><input type="radio" name="m0_q1" value="GET"> GET</label>
+        <label><input type="radio" name="m0_q1" value="POST"> POST</label>
+        <div class="result"></div>
+        <details><summary>Pista</summary>Leer datos casi siempre usa GET.</details>
+      </article>
+
+      <article class="question" data-module="m0" data-type="choice" data-id="m0_q2" data-correct="POST">
+        <h4>2) Para crear un usuario nuevo, que metodo usas?</h4>
+        <label><input type="radio" name="m0_q2" value="GET"> GET</label>
+        <label><input type="radio" name="m0_q2" value="POST"> POST</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="choice" data-id="m0_q3" data-correct="400">
+        <h4>3) Falta email en un POST. Que status code?</h4>
+        <label><input type="radio" name="m0_q3" value="200"> 200</label>
+        <label><input type="radio" name="m0_q3" value="400"> 400</label>
+        <label><input type="radio" name="m0_q3" value="500"> 500</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="choice" data-id="m0_q4" data-correct="404">
+        <h4>4) Pides usuario 99 y no existe. Que status code?</h4>
+        <label><input type="radio" name="m0_q4" value="404"> 404</label>
+        <label><input type="radio" name="m0_q4" value="201"> 201</label>
+        <label><input type="radio" name="m0_q4" value="500"> 500</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="text_groups" data-id="m0_q5"
+        data-groups="query|param|url;body|json|payload"
+        data-hint="Explica que query params van en URL y body va en el cuerpo de la peticion.">
+        <h4>5) Explica diferencia entre query params y body.</h4>
+        <textarea name="m0_q5" placeholder="Escribe tu explicacion"></textarea>
+        <div class="result"></div>
+      </article>
+
+      <h3>Matching rapido</h3>
+      <article class="question" data-module="m0" data-type="select" data-id="m0_m1" data-correct="DELETE">
+        <h4>A) Borrar un producto</h4>
+        <select name="m0_m1">
+          <option value="">Selecciona</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="select" data-id="m0_m2" data-correct="POST">
+        <h4>B) Crear una orden</h4>
+        <select name="m0_m2">
+          <option value="">Selecciona</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="select" data-id="m0_m3" data-correct="GET">
+        <h4>C) Obtener lista de ordenes</h4>
+        <select name="m0_m3">
+          <option value="">Selecciona</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m0" data-type="select" data-id="m0_m4" data-correct="PUT">
+        <h4>D) Actualizar perfil de usuario</h4>
+        <select name="m0_m4">
+          <option value="">Selecciona</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m0">Revisar modulo M0</button>
+      </div>
+      <p id="score-m0" class="small muted">Sin revisar</p>
+    </section>
+
+    <section id="m1" class="module">
+      <div class="module-head">
+        <h2>M1 - PHP basico</h2>
+        <span id="badge-m1" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: variables, if, loops, salida.</p>
+
+      <article class="question" data-module="m1" data-type="choice" data-id="m1_q1" data-correct="$">
+        <h4>1) Que simbolo inicia una variable en PHP?</h4>
+        <label><input type="radio" name="m1_q1" value="$"> $</label>
+        <label><input type="radio" name="m1_q1" value="@">@</label>
+        <label><input type="radio" name="m1_q1" value="#">#</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m1" data-type="choice" data-id="m1_q2" data-correct="echo">
+        <h4>2) Que palabra imprime texto en consola?</h4>
+        <label><input type="radio" name="m1_q2" value="printline">printline</label>
+        <label><input type="radio" name="m1_q2" value="echo">echo</label>
+        <label><input type="radio" name="m1_q2" value="sout">sout</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m1" data-type="text_groups" data-id="m1_q3"
+        data-groups="if;age|edad;>=|mayor"
+        data-hint="Escribe una condicion para mayor de edad usando if y age/edad.">
+        <h4>3) Escribe un mini ejemplo para validar mayor de edad.</h4>
+        <textarea name="m1_q3" placeholder="Ejemplo: if (...) { ... }"></textarea>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m1">Revisar modulo M1</button>
+      </div>
+      <p id="score-m1" class="small muted">Sin revisar</p>
+    </section>
+
+    <section id="m2" class="module">
+      <div class="module-head">
+        <h2>M2 - Funciones y arrays</h2>
+        <span id="badge-m2" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: crear funciones y recorrer arrays.</p>
+
+      <article class="question" data-module="m2" data-type="choice" data-id="m2_q1" data-correct="true">
+        <h4>1) Si price = 120 y regla es "caro si > 100", isExpensive retorna?</h4>
+        <label><input type="radio" name="m2_q1" value="true"> true</label>
+        <label><input type="radio" name="m2_q1" value="false"> false</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m2" data-type="text_groups" data-id="m2_q2"
+        data-groups="function;return;> 100|mayor a 100"
+        data-hint="Necesitas function, return y regla de precio mayor a 100.">
+        <h4>2) Escribe una version corta de isExpensive.</h4>
+        <textarea name="m2_q2" placeholder="function isExpensive(...) { ... }"></textarea>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m2" data-type="choice" data-id="m2_q3" data-correct="foreach">
+        <h4>3) Para recorrer un array en PHP, que usas normalmente?</h4>
+        <label><input type="radio" name="m2_q3" value="forchar">forchar</label>
+        <label><input type="radio" name="m2_q3" value="foreach">foreach</label>
+        <label><input type="radio" name="m2_q3" value="maparray">maparray</label>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m2">Revisar modulo M2</button>
+      </div>
+      <p id="score-m2" class="small muted">Sin revisar</p>
+    </section>
+
+    <section id="m3" class="module">
+      <div class="module-head">
+        <h2>M3 - SQLite y PDO</h2>
+        <span id="badge-m3" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: crear tabla, insertar, consultar, consulta preparada.</p>
+
+      <article class="question" data-module="m3" data-type="choice" data-id="m3_q1" data-correct="SQLite">
+        <h4>1) Para practica local simple, cual base de datos encaja mejor?</h4>
+        <label><input type="radio" name="m3_q1" value="SQLite">SQLite</label>
+        <label><input type="radio" name="m3_q1" value="Oracle">Oracle</label>
+        <label><input type="radio" name="m3_q1" value="Ninguna">Ninguna</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m3" data-type="text_groups" data-id="m3_q2"
+        data-groups="prepare|preparad;seguridad|injection|inyeccion|sql injection"
+        data-hint="Habla de seguridad y de evitar SQL injection con prepared statements.">
+        <h4>2) Por que usar consultas preparadas?</h4>
+        <textarea name="m3_q2" placeholder="Tu explicacion"></textarea>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m3" data-type="regex" data-id="m3_q3"
+        data-regex="where\s+email\s*=\s*(:email|\?)"
+        data-hint="Ejemplo: SELECT * FROM users WHERE email = :email">
+        <h4>3) Escribe una consulta segura para buscar por email.</h4>
+        <textarea name="m3_q3" placeholder="SELECT ..."></textarea>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m3">Revisar modulo M3</button>
+      </div>
+      <p id="score-m3" class="small muted">Sin revisar</p>
+    </section>
+
+    <section id="m4" class="module">
+      <div class="module-head">
+        <h2>M4 - Endpoints basicos</h2>
+        <span id="badge-m4" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: GET/POST en endpoints y respuestas JSON.</p>
+
+      <article class="question" data-module="m4" data-type="choice" data-id="m4_q1" data-correct="GET /users">
+        <h4>1) Cual ruta/metodo lista usuarios?</h4>
+        <label><input type="radio" name="m4_q1" value="POST /users">POST /users</label>
+        <label><input type="radio" name="m4_q1" value="GET /users">GET /users</label>
+        <label><input type="radio" name="m4_q1" value="DELETE /users">DELETE /users</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m4" data-type="choice" data-id="m4_q2" data-correct="201">
+        <h4>2) Si POST /users crea bien, que status code esperas?</h4>
+        <label><input type="radio" name="m4_q2" value="200">200</label>
+        <label><input type="radio" name="m4_q2" value="201">201</label>
+        <label><input type="radio" name="m4_q2" value="404">404</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m4" data-type="text_groups" data-id="m4_q3"
+        data-groups="name;email;json|llaves"
+        data-hint="Debe incluir campos name y email en JSON.">
+        <h4>3) Escribe un body JSON valido para crear usuario.</h4>
+        <textarea name="m4_q3" placeholder='{"name":"Ana","email":"ana@example.com"}'></textarea>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m4" data-type="text_groups" data-id="m4_q4"
+        data-groups="curl;-x post|post;content-type|application/json"
+        data-hint="Incluye curl, POST y Content-Type JSON.">
+        <h4>4) Escribe un curl para POST /users.</h4>
+        <textarea name="m4_q4" placeholder='curl -i -X POST http://localhost:8000/users ...'></textarea>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m4">Revisar modulo M4</button>
+      </div>
+      <p id="score-m4" class="small muted">Sin revisar</p>
+    </section>
+
+    <section id="m5" class="module">
+      <div class="module-head">
+        <h2>M5 - SQL practica</h2>
+        <span id="badge-m5" class="pill">Pendiente</span>
+      </div>
+      <p class="small muted">Meta: SELECT, ORDER BY, LIMIT, UPDATE, DELETE.</p>
+
+      <article class="question" data-module="m5" data-type="choice" data-id="m5_q1" data-correct="ORDER BY price DESC LIMIT 2">
+        <h4>1) Como pides 2 productos mas caros?</h4>
+        <label><input type="radio" name="m5_q1" value="ORDER BY price DESC LIMIT 2">ORDER BY price DESC LIMIT 2</label>
+        <label><input type="radio" name="m5_q1" value="LIMIT 2 ORDER BY price ASC">LIMIT 2 ORDER BY price ASC</label>
+        <label><input type="radio" name="m5_q1" value="TOP 2">TOP 2</label>
+        <div class="result"></div>
+      </article>
+
+      <article class="question" data-module="m5" data-type="regex" data-id="m5_q2"
+        data-regex="sum\s*\(\s*price\s*\*\s*stock\s*\)"
+        data-hint="Formula esperada: SUM(price * stock)">
+        <h4>2) Escribe consulta para valor total de inventario.</h4>
+        <textarea name="m5_q2" placeholder="SELECT SUM(price * stock) AS total FROM products;"></textarea>
+        <div class="result"></div>
+      </article>
+
+      <div class="btn-row">
+        <button type="button" data-eval="m5">Revisar modulo M5</button>
+      </div>
+      <p id="score-m5" class="small muted">Sin revisar</p>
+    </section>
+
+    <section class="panel">
+      <h3>Herramientas</h3>
+      <div class="btn-row">
+        <button id="eval-all" type="button">Revisar todo</button>
+        <button id="copy-progress" class="secondary" type="button">Copiar progreso</button>
+        <button id="clear-data" class="secondary" type="button">Reiniciar respuestas</button>
+      </div>
+      <p class="small muted">
+        "Copiar progreso" te genera un resumen para guardar en notas o enviar por mensaje.
+      </p>
+      <textarea id="report-box" readonly placeholder="Aqui aparece tu resumen..."></textarea>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const storageKey = "bootcamp_backend_mobile_v1";
+      const moduleIds = ["m0", "m1", "m2", "m3", "m4", "m5"];
+      const moduleScores = {
+        m0: null,
+        m1: null,
+        m2: null,
+        m3: null,
+        m4: null,
+        m5: null
+      };
+
+      function normalizeText(text) {
+        return (text || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          return raw ? JSON.parse(raw) : {};
+        } catch (err) {
+          return {};
+        }
+      }
+
+      function saveState(state) {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      }
+
+      function bindPersistence() {
+        const state = loadState();
+        const fields = document.querySelectorAll("input, textarea, select");
+        fields.forEach((field) => {
+          if (!field.name && !field.id) return;
+          const key = field.name || field.id;
+
+          if (field.type === "radio") {
+            if (state[key] && field.value === state[key]) {
+              field.checked = true;
+            }
+            field.addEventListener("change", () => {
+              const now = loadState();
+              now[key] = field.value;
+              saveState(now);
+            });
+          } else {
+            if (typeof state[key] === "string") {
+              field.value = state[key];
+            }
+            const save = () => {
+              const now = loadState();
+              now[key] = field.value;
+              saveState(now);
+            };
+            field.addEventListener("input", save);
+            field.addEventListener("change", save);
+          }
+        });
+      }
+
+      function getAnswer(questionEl) {
+        const type = questionEl.dataset.type;
+        const id = questionEl.dataset.id;
+        if (type === "choice") {
+          const checked = questionEl.querySelector(`input[name="${id}"]:checked`);
+          return checked ? checked.value : "";
+        }
+        if (type === "select") {
+          const sel = questionEl.querySelector(`select[name="${id}"]`);
+          return sel ? sel.value : "";
+        }
+        const txt = questionEl.querySelector(`textarea[name="${id}"]`);
+        return txt ? txt.value : "";
+      }
+
+      function writeResult(questionEl, status, msg) {
+        const box = questionEl.querySelector(".result");
+        if (!box) return;
+        box.className = "result";
+        if (status === "ok") box.classList.add("ok");
+        if (status === "warn") box.classList.add("warn");
+        if (status === "bad") box.classList.add("bad");
+        box.textContent = msg;
+      }
+
+      function evalTextGroups(answer, groupsStr, hint) {
+        const text = normalizeText(answer);
+        const groups = (groupsStr || "")
+          .split(";")
+          .map((g) => g.split("|").map((w) => normalizeText(w)).filter(Boolean))
+          .filter((g) => g.length > 0);
+
+        if (text.length < 4) {
+          return { status: "bad", score: 0, msg: "Respuesta vacia o muy corta." };
+        }
+
+        let hits = 0;
+        groups.forEach((alts) => {
+          const found = alts.some((word) => text.includes(word));
+          if (found) hits += 1;
+        });
+
+        const pct = groups.length === 0 ? 0 : hits / groups.length;
+        if (pct >= 1) return { status: "ok", score: 1, msg: "Muy bien. Idea correcta." };
+        if (pct >= 0.67) return { status: "warn", score: 0.6, msg: `Casi. Falta detalle. ${hint || ""}` };
+        return { status: "bad", score: 0.2, msg: `Incompleto. ${hint || ""}` };
+      }
+
+      function evalRegex(answer, pattern, hint) {
+        const text = normalizeText(answer);
+        if (!text) return { status: "bad", score: 0, msg: "Escribe una respuesta." };
+        try {
+          const re = new RegExp(pattern, "i");
+          if (re.test(text)) {
+            return { status: "ok", score: 1, msg: "Correcto." };
+          }
+          return { status: "warn", score: 0.5, msg: `Bien intento, ajusta formato. ${hint || ""}` };
+        } catch (err) {
+          return { status: "bad", score: 0, msg: "Error interno en validador regex." };
+        }
+      }
+
+      function evaluateQuestion(questionEl) {
+        const type = questionEl.dataset.type;
+        const correct = questionEl.dataset.correct;
+        const hint = questionEl.dataset.hint || "";
+        const answer = getAnswer(questionEl);
+
+        if (type === "choice" || type === "select") {
+          if (!answer) {
+            writeResult(questionEl, "bad", "Debes elegir una opcion.");
+            return 0;
+          }
+          if (answer === correct) {
+            writeResult(questionEl, "ok", "Correcto.");
+            return 1;
+          }
+          writeResult(questionEl, "bad", `Incorrecto. Respuesta esperada: ${correct}`);
+          return 0;
+        }
+
+        if (type === "text_groups") {
+          const out = evalTextGroups(answer, questionEl.dataset.groups, hint);
+          writeResult(questionEl, out.status, out.msg);
+          return out.score;
+        }
+
+        if (type === "regex") {
+          const out = evalRegex(answer, questionEl.dataset.regex || "", hint);
+          writeResult(questionEl, out.status, out.msg);
+          return out.score;
+        }
+
+        writeResult(questionEl, "bad", "Tipo de pregunta no soportado.");
+        return 0;
+      }
+
+      function updateModuleBadge(moduleId, pct) {
+        const badge = document.getElementById(`badge-${moduleId}`);
+        const scoreLabel = document.getElementById(`score-${moduleId}`);
+        if (!badge || !scoreLabel) return;
+
+        if (pct >= 80) {
+          badge.textContent = "Aprobado";
+          badge.style.color = "#88ffcf";
+          scoreLabel.textContent = `Puntaje: ${pct}% (aprobado)`;
+        } else if (pct >= 60) {
+          badge.textContent = "En progreso";
+          badge.style.color = "#ffd982";
+          scoreLabel.textContent = `Puntaje: ${pct}% (casi)`;
+        } else {
+          badge.textContent = "Reforzar";
+          badge.style.color = "#ff9a9a";
+          scoreLabel.textContent = `Puntaje: ${pct}% (refuerza modulo)`;
+        }
+      }
+
+      function recalcGlobal() {
+        const known = moduleIds
+          .map((id) => moduleScores[id])
+          .filter((v) => typeof v === "number");
+        const avg = known.length
+          ? Math.round(known.reduce((a, b) => a + b, 0) / known.length)
+          : 0;
+        const bar = document.getElementById("global-progress");
+        const label = document.getElementById("global-label");
+        bar.style.width = `${avg}%`;
+        label.textContent = `Progreso total: ${avg}%`;
+      }
+
+      function evaluateModule(moduleId) {
+        const items = document.querySelectorAll(`.question[data-module="${moduleId}"]`);
+        if (!items.length) return;
+
+        let total = 0;
+        let points = 0;
+        items.forEach((item) => {
+          total += 1;
+          points += evaluateQuestion(item);
+        });
+
+        const pct = Math.round((points / total) * 100);
+        moduleScores[moduleId] = pct;
+        updateModuleBadge(moduleId, pct);
+        recalcGlobal();
+      }
+
+      function evaluateAll() {
+        moduleIds.forEach((id) => evaluateModule(id));
+      }
+
+      function buildReport() {
+        const lines = [];
+        lines.push("Reporte bootcamp backend");
+        lines.push(`Fecha: ${new Date().toLocaleString()}`);
+        lines.push("------------------------------");
+        moduleIds.forEach((id) => {
+          const score = moduleScores[id];
+          lines.push(`${id.toUpperCase()}: ${typeof score === "number" ? score + "%" : "sin revisar"}`);
+        });
+        lines.push("------------------------------");
+        const label = document.getElementById("global-label");
+        lines.push(label ? label.textContent : "Progreso total: n/a");
+        lines.push("Siguiente paso: refuerza modulos < 80% y vuelve a revisar.");
+        return lines.join("\n");
+      }
+
+      function bindButtons() {
+        document.querySelectorAll("button[data-eval]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            evaluateModule(btn.dataset.eval);
+          });
+        });
+
+        const evalAllBtn = document.getElementById("eval-all");
+        evalAllBtn.addEventListener("click", evaluateAll);
+
+        const copyBtn = document.getElementById("copy-progress");
+        const reportBox = document.getElementById("report-box");
+        copyBtn.addEventListener("click", async () => {
+          const report = buildReport();
+          reportBox.value = report;
+          try {
+            await navigator.clipboard.writeText(report);
+            reportBox.value += "\n\n(Reporte copiado al portapapeles)";
+          } catch (err) {
+            reportBox.value += "\n\n(No se pudo copiar automatico. Copia manual.)";
+          }
+        });
+
+        const clearBtn = document.getElementById("clear-data");
+        clearBtn.addEventListener("click", () => {
+          const ok = window.confirm("Esto borrara respuestas guardadas. Continuar?");
+          if (!ok) return;
+          localStorage.removeItem(storageKey);
+          window.location.reload();
+        });
+      }
+
+      bindPersistence();
+      bindButtons();
+      recalcGlobal();
+    })();
+  </script>
+</body>
+</html>
