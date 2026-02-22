@@ -29,6 +29,11 @@ Prerequisite: Node.js 20+ recommended.
 3. Open:
    - `http://localhost:3000`
 
+### Windows quick start
+
+- Double-click `run-web.bat` to install dependencies (first run) and start the local web app.
+- Keep the opened console window running while users work in the browser.
+
 ## Desktop `.exe` option (for non-technical staff)
 
 If your team prefers a standalone Windows app, use the Python desktop tool:
@@ -46,3 +51,7 @@ If your team prefers a standalone Windows app, use the Python desktop tool:
    - `dist/ProcureFlow.exe`
 
 This path is useful for offline usage and simpler distribution inside your company.
+
+### Windows quick build
+
+- Double-click `build-exe.bat` to build `dist/ProcureFlow.exe` using Python 3.12.

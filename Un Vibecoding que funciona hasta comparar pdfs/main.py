@@ -203,8 +203,13 @@ class ProcurementApp:
             clave_a_fila = {}
             for r in range(self.FILA_INI, ws.max_row + 1):
                 clave = ws.cell(r, 2).value
-                if clave and "-" in str(clave):
-                    clave_a_fila[str(clave).strip()] = r
+                if not clave:
+                    continue
+                clave_str = str(clave).strip()
+                clave_upper = clave_str.upper()
+                if clave_upper in ["CLAVE", "PARTIDA"] or "TOTAL ITEMS SELECTED" in clave_upper:
+                    continue
+                clave_a_fila[clave_str] = r
 
             # Process each PDF into a separate slot (P1, P2, P3)
             # Create or get Suppliers_DB sheet
@@ -233,7 +238,8 @@ class ProcurementApp:
                         tables = []
                         for page in pdf_doc.pages:
                             full_text += (page.extract_text() or "") + "\n"
-                            tables.extend(page.extract_table() or [])
+                            page_tables = page.extract_tables() or []
+                            tables.extend(page_tables)
                         
                         # Basic meta extraction
                         supplier_name = self.extract_regex(full_text, r'Supplier:\s*(.*)') or \
@@ -241,12 +247,29 @@ class ProcurementApp:
                         
                         # Extract items from tables
                         for table in tables:
-                            if not table or len(table) < 2: continue
+                            if not table or len(table) < 2:
+                                continue
                             for row in table[1:]:
-                                if not row: continue
-                                desc = str(row[1]).strip() if len(row) > 1 else ""
-                                price = self.parse_price(row[2]) if len(row) > 2 else None
-                                if desc and price:
+                                if not row:
+                                    continue
+
+                                cells = [str(c).strip() if c is not None else "" for c in row]
+                                if not any(cells):
+                                    continue
+
+                                # Choose longest non-numeric cell as description candidate.
+                                desc_candidates = [c for c in cells if c and not re.fullmatch(r'[\d\$\.,\-\(\)\s]+', c)]
+                                desc = max(desc_candidates, key=len) if desc_candidates else ""
+
+                                # Choose last parsable number in row as price candidate.
+                                price = None
+                                for cell in reversed(cells):
+                                    parsed = self.parse_price(cell)
+                                    if parsed is not None:
+                                        price = parsed
+                                        break
+
+                                if desc and price is not None:
                                     all_pdf_items.append({"desc": desc, "price": price})
 
                     # Update Matrix with this PDF's data
@@ -255,7 +278,7 @@ class ProcurementApp:
                         best_score = 0
                         for clave, info in cat.items():
                             score = self.match_description(item["desc"], info["descripcion"])
-                            if score > 0.42 and score > best_score:
+                            if score > 0.32 and score > best_score:
                                 best_clave = clave
                                 best_score = score
                         
@@ -284,8 +307,13 @@ class ProcurementApp:
             ws.cell(row=summary_row, column=25).value = f'=COUNTIF(Y15:Y{max_item_row},1)+COUNTIF(Y15:Y{max_item_row},"X")+COUNTIF(Y15:Y{max_item_row},"x")+COUNTIF(Y15:Y{max_item_row},"✓")'
             ws.cell(row=summary_row, column=26).value = f'=COUNTIF(Z15:Z{max_item_row},1)+COUNTIF(Z15:Z{max_item_row},"X")+COUNTIF(Z15:Z{max_item_row},"x")+COUNTIF(Z15:Z{max_item_row},"✓")'
 
-            wb.save(matrix_path)
-            return True, f"Matrix updated with {len(pdf_paths)} PDF(s)."
+            matrix_dir = os.path.dirname(matrix_path) or "."
+            matrix_name = os.path.basename(matrix_path)
+            matrix_stem, matrix_ext = os.path.splitext(matrix_name)
+            output_path = os.path.join(matrix_dir, f"Updated_{matrix_stem}{matrix_ext or '.xlsx'}")
+
+            wb.save(output_path)
+            return True, f"Matrix updated with {len(pdf_paths)} PDF(s). Saved as: {output_path}"
         except Exception as e:
             return False, f"Error in Phase 2: {str(e)}"
 
