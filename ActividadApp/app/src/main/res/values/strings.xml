@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Actividad</string>
+    <string name="add_task">Añadir tarea</string>
+    <string name="tap_to_speak">Toca para hablar</string>
+    <string name="voice_hint">Di: \"Tengo que hacer [actividad] para [fecha]\"</string>
+</resources>
